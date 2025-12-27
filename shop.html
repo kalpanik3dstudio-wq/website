@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Shop | Kalpnik3D Studio</title>
+  <title>Shop Collection | Kalpnik3D</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -15,7 +13,7 @@
     <header class="top-nav">
       <div class="top-nav-inner">
         <a href="/" class="nav-brand">
-          <img src="/favicon.png" alt="Kalpnik3D" class="nav-logo-img">
+          <img src="img/logo.png" alt="K3D" class="nav-logo-img" onerror="this.src='https://placehold.co/50x50?text=K3D'">
           <div>
             <div class="nav-title">Kalpnik3D</div>
             <div class="nav-subtitle">Premium Miniatures</div>
@@ -39,27 +37,27 @@
         </div>
 
         <div class="shop-toolbar">
-          <input type="text" id="searchInput" placeholder="Search products..." />
-          <select id="categoryFilter">
+          <input type="text" id="searchInput" placeholder="🔍 Search products..." style="flex:2; min-width:200px;">
+          <select id="categoryFilter" style="flex:1;">
             <option value="all">All Categories</option>
             <option value="miniature">Miniatures</option>
             <option value="idol">Idols</option>
             <option value="gift">Gifts</option>
           </select>
-          <select id="sortSelect">
-            <option value="featured">Featured</option>
+          <select id="sortSelect" style="flex:1;">
+            <option value="featured">Sort by: Featured</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
           </select>
         </div>
 
         <div id="productsGrid" class="products-grid">
-          <div class="card-shell" style="text-align:center; grid-column: 1/-1;">
-            Loading collection...
+          <div style="grid-column:1/-1; text-align:center; padding:3rem; color:grey;">
+            Loading products...
           </div>
         </div>
         
-        <div id="emptyState" class="card-shell" style="display:none; text-align:center;">
+        <div id="emptyState" style="display:none; text-align:center; padding:3rem;">
           <h3>No products found</h3>
           <p>Try adjusting your search or filters.</p>
         </div>
@@ -67,39 +65,24 @@
     </main>
 
     <footer class="site-footer">
-      <div class="footer-grid">
-        <div class="footer-col">
-          <h3>Kalpnik3D Studio</h3>
-          <p>India’s premium 3D miniature studio — transforming your precious memories into beautiful, handcrafted 3D artworks.</p>
+      <div class="container">
+        <div style="margin-bottom:1rem; opacity:0.8;">© 2025 Kalpnik3D Studio</div>
+        <div class="footer-links">
+          <a href="/">Home</a>
+          <a href="/shop.html">Shop</a>
+          <a href="/cart.html">Cart</a>
+          <a href="/admin.html">Admin Login</a>
         </div>
-        <div class="footer-col">
-          <h3>Quick Links</h3>
-          <div class="footer-links">
-            <a href="/">Home</a>
-            <a href="/shop.html">Shop Collection</a>
-            <a href="/cart.html">My Cart</a>
-            <a href="/contact.html">Contact Us</a>
-          </div>
-        </div>
-        <div class="footer-col">
-          <h3>Contact</h3>
-          <div class="footer-links">
-            <a href="tel:+916309480371">+91 63094 80371</a>
-            <a href="mailto:support@kalpnik3d.com">support@kalpnik3d.com</a>
-            <a href="#">Bhadravati, Maharashtra</a>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        © 2025 Kalpnik3D Studio. All rights reserved.
       </div>
     </footer>
     
+    <div id="shopError" style="display:none; position:fixed; top:20px; right:20px; background:red; color:white; padding:10px;"></div>
     <div class="toast" style="position:fixed; bottom:20px; right:20px; background:#2c3836; color:white; padding:12px 24px; border-radius:50px; opacity:0; pointer-events:none; transition:0.3s;">Item added to cart</div>
 
   </div>
 
   <script type="module" src="js/firebase.js"></script>
   <script type="module" src="js/products.js"></script>
+  <script type="module" src="js/userState.js"></script>
 </body>
 </html>
