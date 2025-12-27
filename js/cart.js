@@ -120,3 +120,23 @@ checkoutBtn?.addEventListener("click", () => {
 });
 
 renderCart();
+// Add this at the very end of js/cart.js
+function updateNavBadge() {
+  const cart = loadCart();
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  
+  // Try to find the cart link in the nav
+  const navLinks = document.querySelectorAll('.nav-links a');
+  navLinks.forEach(link => {
+    if (link.textContent.includes("Cart")) {
+      if (count > 0) {
+        link.innerHTML = `Cart <span style="background:#ff3502; color:white; padding:2px 6px; border-radius:10px; font-size:0.75rem; margin-left:5px;">${count}</span>`;
+      } else {
+        link.textContent = "Cart";
+      }
+    }
+  });
+}
+
+// Update badge whenever page loads
+document.addEventListener("DOMContentLoaded", updateNavBadge);
