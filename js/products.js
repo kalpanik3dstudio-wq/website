@@ -57,11 +57,14 @@ function formatINR(amount) {
 function buildProductCard(p) {
   const priceLabel = formatINR(p.price);
 
+  // FIX: Check 'imageUrl' first, then 'image', then use web placeholder
+  const imageSrc = p.imageUrl || p.image || "https://placehold.co/400x400?text=No+Image";
+
   return `
     <article class="product-card" data-category="${p.category || "other"}">
       <div class="product-image-wrap">
         <img
-          src="${p.image || "/img/product-placeholder.jpg"}"
+          src="${imageSrc}"
           alt="${p.name || "Kalpnik3D product"}"
           loading="lazy"
         />
@@ -81,7 +84,7 @@ function buildProductCard(p) {
           data-id="${p.id}"
           data-name="${p.name}"
           data-price="${p.price}"
-          data-image="${p.image || ""}"
+          data-image="${imageSrc}"
         >
           Add to cart
         </button>
@@ -152,7 +155,8 @@ function wireAddToCartButtons() {
         id: btn.dataset.id,
         name: btn.dataset.name,
         price: Number(btn.dataset.price || 0),
-        image: btn.dataset.image || "",
+        // FIX: Save as 'imageUrl' to match Cart code
+        imageUrl: btn.dataset.image || "", 
         qty: 1
       };
 
@@ -168,13 +172,16 @@ function wireAddToCartButtons() {
 
       localStorage.setItem("kalpnik_cart", JSON.stringify(cart));
 
-      // simple toast – you can replace with your global toast later
+      // Show Toast
       const toast = document.querySelector(".toast");
       if (toast) {
         toast.textContent = `${item.name} added to cart`;
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2000);
+        toast.style.opacity = "1";
+        setTimeout(() => toast.style.opacity = "0", 2000);
       }
+      
+      // Update Nav Badge if function exists
+      if(window.updateNavBadge) window.updateNavBadge();
     });
   });
 }
@@ -202,7 +209,6 @@ async function loadProducts() {
       });
     });
 
-    // if no products yet, at least show empty state
     if (!allProducts.length) {
       showSkeleton(false);
       applyFilters();
@@ -214,7 +220,7 @@ async function loadProducts() {
   } catch (err) {
     console.error("Failed to load products", err);
     showSkeleton(false);
-    setError("Failed to load products. Please try again in a bit.");
+    setError("Failed to load products. Please check your internet.");
     showGrid(false);
     showEmpty(false);
   }

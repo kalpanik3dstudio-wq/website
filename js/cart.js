@@ -28,6 +28,9 @@ function updateSummary(cart) {
   if (cartTotal) cartTotal.textContent = formatINR(total);
   cartCount.forEach(el => (el.textContent = count));
   if (checkoutBtn) checkoutBtn.disabled = cart.length === 0;
+  
+  // Also update the global Nav badge
+  if(window.updateNavBadge) window.updateNavBadge();
 }
 
 function renderCart() {
@@ -47,9 +50,12 @@ function renderCart() {
     row.className = "cart-row fade-in-up";
     row.style.animationDelay = `${index * 70}ms`;
 
+    // FIX: Uses 'imageUrl' matching the new products.js
+    const imgSrc = item.imageUrl || item.image || "https://placehold.co/80x80?text=No+Img";
+
     row.innerHTML = `
       <div class="cart-item-main">
-        <img src="${item.imageUrl || "https://via.placeholder.com/80"}" alt="${item.name}">
+        <img src="${imgSrc}" alt="${item.name}">
         <div>
           <h4>${item.name}</h4>
           <p class="cart-price">${formatINR(item.price)}</p>
@@ -73,10 +79,8 @@ function renderCart() {
 
     minusBtn.addEventListener("click", () => {
       let cart = loadCart();
-      const itemRef = cart[index];
-      if (!itemRef) return;
-      if (itemRef.quantity > 1) {
-        itemRef.quantity -= 1;
+      if (cart[index].quantity > 1) {
+        cart[index].quantity -= 1;
       }
       saveCart(cart);
       renderCart();
@@ -84,20 +88,16 @@ function renderCart() {
 
     plusBtn.addEventListener("click", () => {
       let cart = loadCart();
-      const itemRef = cart[index];
-      if (!itemRef) return;
-      itemRef.quantity += 1;
+      cart[index].quantity += 1;
       saveCart(cart);
       renderCart();
     });
 
     qtyInput.addEventListener("change", () => {
       let cart = loadCart();
-      const itemRef = cart[index];
-      if (!itemRef) return;
       let value = parseInt(qtyInput.value || "1", 10);
       if (Number.isNaN(value) || value < 1) value = 1;
-      itemRef.quantity = value;
+      cart[index].quantity = value;
       saveCart(cart);
       renderCart();
     });
@@ -119,13 +119,11 @@ checkoutBtn?.addEventListener("click", () => {
   window.location.href = "checkout.html";
 });
 
-renderCart();
-// Add this at the very end of js/cart.js
-function updateNavBadge() {
+// Add to global scope so products.js can call it
+window.updateNavBadge = function() {
   const cart = loadCart();
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
   
-  // Try to find the cart link in the nav
   const navLinks = document.querySelectorAll('.nav-links a');
   navLinks.forEach(link => {
     if (link.textContent.includes("Cart")) {
@@ -136,7 +134,9 @@ function updateNavBadge() {
       }
     }
   });
-}
+};
 
-// Update badge whenever page loads
-document.addEventListener("DOMContentLoaded", updateNavBadge);
+document.addEventListener("DOMContentLoaded", () => {
+  renderCart();
+  window.updateNavBadge();
+});
