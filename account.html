@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Account | Kalpnik3D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Account Specific Styles */
+    .acc-grid { display: grid; grid-template-columns: 250px 1fr; gap: 2rem; margin-top: 2rem; }
+    @media(max-width: 768px) { .acc-grid { grid-template-columns: 1fr; } }
+    
+    .acc-sidebar { background: white; padding: 1.5rem; border-radius: 16px; box-shadow: var(--shadow-soft); height: fit-content; }
+    .acc-menu-btn { display: block; width: 100%; text-align: left; padding: 10px 15px; background: none; border: none; font-weight: 500; color: var(--muted); cursor: pointer; border-radius: 8px; transition: 0.2s; }
+    .acc-menu-btn:hover { background: #f9f9f9; color: var(--accent-orange); }
+    .acc-menu-btn.active { background: #fff5f2; color: var(--accent-orange); font-weight: 700; }
+
+    .status-timeline { display: flex; gap: 10px; align-items: center; margin-top: 10px; font-size: 0.85rem; }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; background: #ddd; }
+    .status-line { flex: 1; height: 2px; background: #ddd; }
+    .status-active .status-dot { background: var(--accent-orange); box-shadow: 0 0 0 3px #ffdcd4; }
+    .status-active .status-line { background: var(--accent-orange); }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="top-nav">
+      <div class="top-nav-inner">
+        <a href="/" class="nav-brand">
+          <img src="img/logo.png" class="nav-logo-img">
+          <div class="nav-title">Kalpnik3D</div>
+        </a>
+        <nav class="nav-links">
+          <a href="/shop.html">Shop</a>
+          <a href="/cart.html">Cart</a>
+          <a href="/account.html" class="is-active">My Account</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container" style="padding-top: 2rem;">
+      
+      <div id="loader" style="text-align: center; padding: 4rem;">
+        <p>Loading your profile...</p>
+      </div>
+
+      <div id="guestView" style="display: none; max-width: 400px; margin: 0 auto;">
+        <div class="card-shell">
+          <h2 style="text-align:center; margin-bottom:1.5rem;">Login to Account</h2>
+          
+          <div style="display:flex; gap:10px; margin-bottom:1.5rem; background:#f5f5f5; padding:4px; border-radius:12px;">
+            <button id="btnShowLogin" class="btn w-100" style="background:white; shadow:0 2px 4px rgba(0,0,0,0.1);">Login</button>
+            <button id="btnShowReg" class="btn w-100" style="background:transparent;">Sign Up</button>
+          </div>
+
+          <form id="loginForm">
+            <div class="input-group">
+              <label>Email</label>
+              <input type="email" id="loginEmail" required>
+            </div>
+            <div class="input-group">
+              <label>Password</label>
+              <input type="password" id="loginPass" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Sign In</button>
+          </form>
+
+          <form id="regForm" style="display:none;">
+            <div class="input-group">
+              <label>Email</label>
+              <input type="email" id="regEmail" required>
+            </div>
+            <div class="input-group">
+              <label>Create Password</label>
+              <input type="password" id="regPass" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Create Account</button>
+          </form>
+
+          <p id="authMsg" style="text-align:center; margin-top:1rem; font-size:0.9rem; color:red;"></p>
+        </div>
+      </div>
+
+      <div id="userView" style="display: none;">
+        <h1 id="welcomeText">Welcome Back</h1>
+        
+        <div class="acc-grid">
+          <aside class="acc-sidebar">
+            <button class="acc-menu-btn active" onclick="switchTab('orders')">📦 My Orders</button>
+            <button class="acc-menu-btn" onclick="switchTab('profile')">👤 My Details</button>
+            <hr style="border:0; border-top:1px solid #eee; margin:1rem 0;">
+            <button id="logoutBtn" class="acc-menu-btn" style="color:red;">Logout</button>
+          </aside>
+
+          <section>
+            
+            <div id="tab-orders">
+              <h2 style="margin-top:0;">Order History</h2>
+              <div id="ordersList">
+                <p>Loading orders...</p>
+              </div>
+            </div>
+
+            <div id="tab-profile" style="display:none;">
+              <h2 style="margin-top:0;">Profile Details</h2>
+              <div class="card-shell">
+                <form id="profileForm">
+                  <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="profName" placeholder="Your Name">
+                  </div>
+                  <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="profPhone" placeholder="+91...">
+                  </div>
+                  <div class="input-group">
+                    <label>Delivery Address</label>
+                    <textarea id="profAddress" rows="3"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+                  <p id="profMsg" style="margin-top:10px; font-size:0.9rem;"></p>
+                </form>
+              </div>
+            </div>
+
+          </section>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="site-footer">
+      <div class="container" style="text-align:center;">© 2025 Kalpnik3D.</div>
+    </footer>
+  </div>
+
+  <script>
+    // Simple Tab Logic
+    function switchTab(tab) {
+      document.getElementById('tab-orders').style.display = tab === 'orders' ? 'block' : 'none';
+      document.getElementById('tab-profile').style.display = tab === 'profile' ? 'block' : 'none';
+      
+      // Update Buttons
+      document.querySelectorAll('.acc-menu-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    // Toggle Login/Signup
+    const btnLogin = document.getElementById('btnShowLogin');
+    const btnReg = document.getElementById('btnShowReg');
+    const formLogin = document.getElementById('loginForm');
+    const formReg = document.getElementById('regForm');
+
+    btnLogin.onclick = () => {
+      formLogin.style.display = 'block'; formReg.style.display = 'none';
+      btnLogin.style.background = 'white'; btnReg.style.background = 'transparent';
+    };
+    btnReg.onclick = () => {
+      formLogin.style.display = 'none'; formReg.style.display = 'block';
+      btnReg.style.background = 'white'; btnLogin.style.background = 'transparent';
+    };
+  </script>
+
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/account.js"></script>
+</body>
+</html>
