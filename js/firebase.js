@@ -1,39 +1,28 @@
-// js/firebase.js
+// public/js/firebase.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import {
-  getFirestore,
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-import {
-  getStorage,
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-analytics.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
+// --- YOUR NEW CONFIGURATION ---
 const firebaseConfig = {
-  apiKey: "AIzaSyAe7G_RDwSE56VM4pCVVnkc2tVXsnxKLgw",
-  authDomain: "kalpnik3d-website.firebaseapp.com",
-  projectId: "kalpnik3d-website",
-  storageBucket: "kalpnik3d-website.firebasestorage.app",
-  messagingSenderId: "819193971889",
-  appId: "1:819193971889:web:8488288c6e6b7324d6ff80",
+  apiKey: "AIzaSyAnQN-DoJnb3S9wmIseNH5Cimid09Rt2WE",
+  authDomain: "kalpnik3d.firebaseapp.com",
+  projectId: "kalpnik3d",
+  storageBucket: "kalpnik3d.firebasestorage.app",
+  messagingSenderId: "92040077364",
+  appId: "1:92040077364:web:06a8eeb70b136831c4aa61",
+  measurementId: "G-QHY5RJ8PMW"
 };
 
-let app = null;
-let auth = null;
-let db = null;
-let storage = null;
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-try {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
-  storage = getStorage(app);
-
-  console.log("Firebase initialised");
-} catch (err) {
-  console.error("Firebase init error:", err);
-}
+console.log("Firebase initialised with Project ID:", firebaseConfig.projectId);
 
 export { app, auth, db, storage, onAuthStateChanged };
