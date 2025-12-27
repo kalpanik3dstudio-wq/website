@@ -1,10 +1,13 @@
-import { auth, db, onAuthStateChanged } from "./firebase.js";
+import { auth, db, storage, onAuthStateChanged } from "./firebase.js";
 import { 
   collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { 
+  ref, uploadBytesResumable, getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-const ADMIN_EMAIL = "vinayjawai82@gmail.com"; // Your email
+const ADMIN_EMAIL = "vinayjawai82@gmail.com"; 
 
 // UI Elements
 const gate = document.getElementById("adminGate");
@@ -14,6 +17,13 @@ const productsList = document.getElementById("adminProductsList");
 const ordersList = document.getElementById("ordersList");
 const toast = document.getElementById("toast");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
+
+// Upload UI
+const imageInput = document.getElementById("imageInput");
+const imageUrlHidden = document.getElementById("imageUrl");
+const uploadStatus = document.getElementById("uploadStatus");
+const uploadProgress = document.getElementById("uploadProgress");
+const imagePreview = document.getElementById("imagePreview");
 
 // 1. Auth Check
 onAuthStateChanged(auth, user => {
@@ -27,19 +37,60 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-// 2. Load Products
+// 2. IMAGE UPLOAD HANDLER
+imageInput.addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  // Create a unique filename: products/173598723_myimage.jpg
+  const fileName = `products/${Date.now()}_${file.name}`;
+  const storageRef = ref(storage, fileName);
+  const uploadTask = uploadBytesResumable(storageRef, file);
+
+  uploadStatus.textContent = "Uploading...";
+  
+  uploadTask.on('state_changed', 
+    (snapshot) => {
+      // Progress bar
+      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      uploadProgress.style.width = progress + "%";
+    }, 
+    (error) => {
+      console.error(error);
+      uploadStatus.textContent = "Upload failed!";
+      uploadStatus.style.color = "red";
+    }, 
+    async () => {
+      // Success! Get the link
+      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+      imageUrlHidden.value = downloadURL; // Save URL to hidden input
+      
+      // Show preview
+      imagePreview.src = downloadURL;
+      imagePreview.style.display = "block";
+      
+      uploadStatus.textContent = "Upload Complete!";
+      uploadStatus.style.color = "green";
+    }
+  );
+});
+
+// 3. Load Products
 async function loadProducts() {
   productsList.innerHTML = "<p>Loading...</p>";
-  const q = query(collection(db, "products"), orderBy("name")); // Sort by name
+  const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
   
   let html = "";
   snap.forEach(docSnap => {
     const p = docSnap.data();
+    // Use the link we saved, or a placeholder
+    const thumbSrc = p.imageUrl || "https://placehold.co/100x100?text=No+Img";
+
     html += `
       <div class="list-row">
         <div class="list-info">
-          <img src="${p.imageUrl || '/favicon.png'}" class="list-thumb">
+          <img src="${thumbSrc}" class="list-thumb" style="object-fit:cover;">
           <div>
             <div style="font-weight:600;">${p.name}</div>
             <div style="font-size:0.85rem; color:grey;">₹${p.price} • ${p.category}</div>
@@ -55,7 +106,7 @@ async function loadProducts() {
   productsList.innerHTML = html || "<p>No products yet.</p>";
 }
 
-// 3. Save / Update Product
+// 4. Save / Update Product
 productForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = productForm.docId.value;
@@ -64,7 +115,7 @@ productForm.addEventListener("submit", async (e) => {
     name: productForm.name.value,
     price: Number(productForm.price.value),
     category: productForm.category.value,
-    imageUrl: productForm.imageUrl.value,
+    imageUrl: productForm.imageUrl.value, // This comes from the hidden input
     active: productForm.active.checked,
     updatedAt: serverTimestamp()
   };
@@ -86,21 +137,32 @@ productForm.addEventListener("submit", async (e) => {
   }
 });
 
-// 4. Edit Logic (Exposed to Window)
+// 5. Edit Logic
 window.editProduct = (id, name, price, category, img, active) => {
   productForm.docId.value = id;
   productForm.name.value = name;
   productForm.price.value = price;
   productForm.category.value = category;
-  productForm.imageUrl.value = (img === 'undefined') ? '' : img;
-  productForm.active.checked = active; // active is boolean
+  
+  // Set the hidden URL field and show preview
+  productForm.imageUrl.value = (img === 'undefined' || !img) ? '' : img;
+  if(img && img !== 'undefined') {
+    imagePreview.src = img;
+    imagePreview.style.display = "block";
+    uploadStatus.textContent = "Current Image Loaded";
+  } else {
+    imagePreview.style.display = "none";
+    uploadStatus.textContent = "No image selected";
+  }
+
+  productForm.active.checked = active; 
   
   document.getElementById("formTitle").textContent = "Edit Product";
   cancelEditBtn.style.display = "inline-block";
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-// 5. Delete Logic
+// 6. Delete Logic
 window.deleteProduct = async (id) => {
   if(!confirm("Are you sure? This cannot be undone.")) return;
   await deleteDoc(doc(db, "products", id));
@@ -108,16 +170,21 @@ window.deleteProduct = async (id) => {
   loadProducts();
 };
 
-// 6. Reset Form
+// 7. Reset Form
 function resetForm() {
   productForm.reset();
   productForm.docId.value = "";
   document.getElementById("formTitle").textContent = "Add New Product";
   cancelEditBtn.style.display = "none";
+  
+  // Reset Upload UI
+  imagePreview.style.display = "none";
+  uploadStatus.textContent = "No file chosen";
+  uploadProgress.style.width = "0%";
 }
 cancelEditBtn.addEventListener("click", resetForm);
 
-// 7. Load Orders
+// 8. Load Orders (Standard)
 window.loadOrders = async () => {
   ordersList.innerHTML = "<p>Loading orders...</p>";
   try {
@@ -133,9 +200,7 @@ window.loadOrders = async () => {
     snap.forEach(docSnap => {
       const o = docSnap.data();
       const date = o.createdAt ? o.createdAt.toDate().toLocaleDateString() : "Unknown Date";
-      
-      // Build item list
-      let itemsHtml = o.items.map(i => `<li>${i.quantity}x ${i.name}</li>`).join("");
+      let itemsHtml = o.items ? o.items.map(i => `<li>${i.quantity}x ${i.name}</li>`).join("") : "<li>Items unknown</li>";
 
       html += `
         <div class="order-card">
@@ -174,12 +239,10 @@ window.markShipped = async (id) => {
   loadOrders();
 };
 
-// 8. Logout
 document.getElementById("logoutBtn").addEventListener("click", () => {
   signOut(auth).then(() => window.location.href = "/login.html");
 });
 
-// Toast Helper
 function showToast(msg) {
   toast.textContent = msg;
   toast.style.opacity = "1";

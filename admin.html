@@ -51,10 +51,17 @@
               <h3 id="formTitle" style="margin-top:0;">Add New Product</h3>
               <form id="productForm">
                 <input type="hidden" name="docId"> <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1rem;">
-                  <div class="input-group">
-                    <label>Product Name</label>
-                    <input type="text" name="name" required placeholder="Ex: Family Miniature">
-                  </div>
+                 <div class="input-group">
+  <label>Product Image</label>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <input type="file" id="imageInput" accept="image/*" style="border:1px solid #ccc; padding:8px;">
+    <input type="hidden" name="imageUrl" id="imageUrl">
+  </div>
+  <div id="uploadProgress" style="height:4px; width:0%; background:#ff3502; transition:width 0.3s; margin-top:5px;"></div>
+  <small id="uploadStatus" style="color:grey; font-size:0.8rem;">No file chosen</small>
+  
+  <img id="imagePreview" src="" style="display:none; width:80px; height:80px; object-fit:cover; margin-top:10px; border-radius:8px; border:1px solid #ddd;">
+</div>
                   <div class="input-group">
                     <label>Price (₹)</label>
                     <input type="number" name="price" required placeholder="2499">
