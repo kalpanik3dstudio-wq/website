@@ -5,7 +5,6 @@
   <title>Kalpnik3D Studio — Premium 3D Miniatures</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -13,7 +12,6 @@
     rel="stylesheet"
   />
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="/favicon.png" />
 
   <style>
@@ -32,873 +30,183 @@
       --shadow-strong: 0 10px 30px rgba(0, 0, 0, 0.15);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html,
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
+      font-family: "Poppins", system-ui, -apple-system, sans-serif;
       background: var(--bg-main);
       color: var(--deep);
       scroll-behavior: smooth;
     }
 
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+    a { text-decoration: none; color: inherit; }
 
     /* Animations */
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
 
-    @keyframes float {
-      0%,
-      100% {
-        transform: translateY(0px);
-      }
-      50% {
-        transform: translateY(-10px);
-      }
-    }
+    /* Layout */
+    .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
+    .site-main { flex: 1; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    /* Layout helpers */
-    .page-shell {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .site-main {
-      flex: 1;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* Top Nav */
+    /* --- UPDATED NAVIGATION --- */
     .top-nav {
       position: sticky;
       top: 0;
-      z-index: 20;
-      background: rgba(255, 246, 233, 0.98);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      z-index: 50;
+      background: rgba(255, 246, 233, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
     }
 
     .top-nav-inner {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 12px 20px;
+      padding: 0.75rem 1.25rem;
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      justify-content: space-between;
     }
 
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+    .nav-brand { display: flex; align-items: center; gap: 0.8rem; }
+    .nav-logo-img { width: 40px; height: 40px; border-radius: 12px; background: white; box-shadow: var(--shadow-soft); object-fit: contain; }
+    .nav-title { font-weight: 700; font-size: 1.1rem; line-height: 1.2; }
+    .nav-subtitle { font-size: 0.75rem; color: var(--muted); }
 
-    .nav-logo-img {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      object-fit: contain;
-      background: #fff;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .nav-brand-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .nav-title {
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: 0.02em;
-    }
-
-    .nav-subtitle {
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-
-    .nav-links {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 0.9rem;
-    }
-
-    .nav-links a {
-      padding: 8px 14px;
-      border-radius: var(--radius-pill);
-      color: var(--muted);
-      transition: all 0.2s ease;
-    }
-
-    .nav-links a:hover {
-      background: rgba(0, 0, 0, 0.05);
-      color: var(--deep);
-      transform: translateY(-1px);
-    }
-
-    .nav-cta {
-      background: var(--accent-grad);
-      color: white;
-      padding: 8px 18px;
-      border-radius: var(--radius-pill);
-      font-weight: 600;
-      font-size: 0.9rem;
-      box-shadow: 0 4px 15px rgba(255, 53, 2, 0.3);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .nav-cta:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(255, 53, 2, 0.4);
-    }
-
-    @media (max-width: 768px) {
-      .top-nav-inner {
-        flex-wrap: wrap;
-        justify-content: space-between;
-      }
-      .nav-links {
-        width: 100%;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-      }
-    }
-
-    /* HERO SECTION */
-    .hero-section {
-      text-align: center;
-      padding: 80px 20px 60px;
-      background: linear-gradient(135deg, #fff6e9 0%, #ffedd5 100%);
-      animation: fadeUp 1s ease-out;
-    }
-
-    .hero-logo {
-      max-width: 320px;
-      margin: 0 auto 30px;
-      animation: float 3s ease-in-out infinite;
-      display: block;
-    }
-
-    .hero-title {
-      font-size: 2.8em;
-      font-weight: 700;
-      color: #2c3836;
-      margin: 20px 0 15px;
-      animation: fadeUp 1.2s ease-out;
-    }
-
-    .hero-title span.highlight {
-      background: var(--accent-grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero-subtitle {
-      font-size: 1.15em;
-      color: #666;
-      max-width: 620px;
-      margin: 0 auto 40px;
-      line-height: 1.6;
-      animation: fadeUp 1.4s ease-out;
-    }
-
-    .hero-actions {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      animation: fadeUp 1.6s ease-out;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      background: var(--accent-grad);
-      color: white;
-      padding: 14px 36px;
-      border-radius: 50px;
-      font-weight: 600;
-      font-size: 1.05em;
-      box-shadow: 0 4px 15px rgba(255, 53, 2, 0.35);
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(255, 53, 2, 0.4);
-    }
-
-    .btn-ghost {
-      display: inline-block;
-      padding: 12px 26px;
-      border-radius: 50px;
-      border: 1px solid rgba(44, 56, 54, 0.2);
-      background: rgba(255, 255, 255, 0.9);
-      color: #2c3836;
-      font-weight: 500;
-      font-size: 0.95em;
-      transition: all 0.25s ease;
-    }
-
-    .btn-ghost:hover {
-      border-color: #ffb204;
-      color: #ff3502;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-    }
-
-    /* FEATURES */
-    .features-section {
-      padding: 60px 20px 40px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .section-title {
-      text-align: center;
-      font-size: 2.1em;
-      color: #2c3836;
-      margin-bottom: 45px;
-      font-weight: 700;
-    }
-
-    .section-subtitle {
-      text-align: center;
-      max-width: 620px;
-      margin: -20px auto 40px;
-      font-size: 0.95em;
-      color: #777;
-    }
-
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 28px;
-      animation: slideIn 1s ease-out;
-    }
-
-    .feature-card {
-      background: #ffffff;
-      padding: 30px 24px;
-      border-radius: 20px;
-      text-align: center;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 10px 30px rgba(255, 53, 2, 0.12);
-    }
-
-    .feature-icon {
-      font-size: 2.6em;
-      margin-bottom: 15px;
-    }
-
-    .feature-title {
-      font-size: 1.2em;
-      color: #2c3836;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .feature-desc {
-      color: #666;
-      line-height: 1.6;
-      font-size: 0.95em;
-    }
-
-    /* BESTSELLERS */
-    .bestseller-section {
-      background: #ffffff;
-      padding: 60px 20px;
-      margin: 40px 0;
-    }
-
-    .product-showcase {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .product-card {
-      background: #fff6e9;
-      border-radius: 18px;
-      padding: 22px 20px;
-      text-align: center;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-    }
-
-    .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 24px rgba(255, 53, 2, 0.18);
-    }
-
-    .product-img {
-      width: 100%;
-      height: 190px;
-      background: linear-gradient(135deg, #ffe5d9, #fff6e9);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3em;
-      margin-bottom: 16px;
-    }
-
-    .product-name {
-      font-weight: 600;
-      color: #2c3836;
-      margin: 10px 0 6px;
-      font-size: 1.05em;
-    }
-
-    .product-price {
-      color: #ff3502;
-      font-size: 1.25em;
-      font-weight: 700;
-      margin: 4px 0 12px;
-    }
-
-    .btn-secondary {
-      background: #2c3836;
-      color: white;
-      padding: 9px 22px;
-      border-radius: 24px;
-      font-size: 0.9em;
-      font-weight: 500;
-      display: inline-block;
-      transition: background 0.25s ease, transform 0.2s ease;
-    }
-
-    .btn-secondary:hover {
-      background: #ff3502;
-      transform: translateY(-2px);
-    }
-
-    /* QUICK ORDER / UPI SECTION */
-    .payment-section {
-      background: var(--accent-grad);
-      padding: 60px 20px 70px;
-      text-align: center;
-      color: white;
-    }
-
-    .payment-section h2 {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-
-    .payment-section p {
-      max-width: 620px;
-      margin: 0 auto 25px;
-      font-size: 0.98em;
-      line-height: 1.6;
-      opacity: 0.95;
-    }
-
-    .upi-box {
-      background: white;
-      color: #2c3836;
-      padding: 26px 24px;
-      border-radius: 18px;
-      max-width: 460px;
-      margin: 20px auto 0;
-      box-shadow: var(--shadow-strong);
-    }
-
-    .upi-box h3 {
-      margin: 0 0 8px;
-      font-size: 1.2em;
-      font-weight: 600;
-    }
-
-    .upi-id {
-      font-size: 1.4em;
-      font-weight: 700;
-      color: #ff3502;
-      margin: 10px 0 8px;
-      letter-spacing: 0.5px;
-    }
-
-    .upi-box small {
-      display: block;
-      font-size: 0.85em;
-      color: #777;
-    }
-
-    .whatsapp-btn {
-      background: #25d366;
-      color: white;
-      padding: 12px 32px;
-      border-radius: 50px;
-      display: inline-block;
-      font-weight: 600;
-      margin-top: 18px;
-      font-size: 1em;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-    }
-
-    .whatsapp-btn:hover {
-      transform: scale(1.04);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    }
-
-    /* FOOTER */
-    .footer-main {
-      background: #2c3836;
-      color: white;
-      padding: 60px 20px 30px;
-    }
-
-    .footer-container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 40px;
-      margin-bottom: 40px;
-    }
-
-    .footer-column h3 {
-      color: white;
-      font-size: 1.25em;
-      font-weight: 700;
-      margin-bottom: 18px;
-      position: relative;
-      padding-bottom: 10px;
-    }
-
-    .footer-column h3::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 50px;
-      height: 3px;
-      background: var(--accent-grad);
-    }
-
-    .footer-logo-section {
-      max-width: 280px;
-    }
-
-    .footer-logo {
-      max-width: 200px;
-      margin-bottom: 18px;
-      opacity: 1;
-      display: block;
-    }
-
-    .footer-description {
-      color: #ccc;
-      line-height: 1.7;
-      font-size: 0.95em;
-      margin-bottom: 18px;
-    }
-
-    .footer-social {
-      display: flex;
-      gap: 12px;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
-
-    .social-icon {
-      width: 42px;
-      height: 42px;
-      background: rgba(255, 255, 255, 0.09);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2em;
-      text-decoration: none;
-      color: white;
-      transition: all 0.3s;
-    }
-
-    .social-icon:hover {
-      background: var(--accent-grad);
-      transform: translateY(-3px);
-    }
-
-    .footer-links {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .footer-links li {
-      margin-bottom: 10px;
-    }
-
-    .footer-links a {
-      color: #ccc;
-      text-decoration: none;
-      font-size: 0.95em;
-      transition: all 0.25s ease;
+    .nav-links { display: flex; align-items: center; gap: 0.5rem; }
+    .nav-links a { padding: 8px 16px; border-radius: var(--radius-pill); font-size: 0.9rem; color: var(--muted); font-weight: 500; transition: 0.2s; }
+    .nav-links a:hover { background: rgba(0,0,0,0.04); color: var(--deep); }
+    
+    /* User Badge Styling */
+    .nav-user-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .footer-links a:hover {
-      color: #ffb204;
-      transform: translateX(4px);
-    }
-
-    .footer-contact-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 13px;
-      color: #ccc;
-      font-size: 0.95em;
-    }
-
-    .footer-contact-icon {
-      font-size: 1.2em;
-      color: #ffb204;
-      min-width: 22px;
-    }
-
-    .footer-divider {
-      height: 1px;
-      background: rgba(255, 255, 255, 0.12);
-      margin: 30px 0 20px;
-    }
-
-    .footer-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 14px;
-      font-size: 0.9em;
-      color: #ccc;
-    }
-
-    .footer-payment {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .payment-icon {
       background: white;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.85em;
-      font-weight: 700;
-      color: #2c3836;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 0.85rem;
+      border: 1px solid rgba(0,0,0,0.08);
+      color: var(--muted);
+      margin-left: 10px;
     }
+    .nav-user-pill.logged-in {
+      border-color: var(--accent-gold);
+      color: var(--deep);
+      background: #fffcf0;
+    }
+
+    .nav-auth-btn {
+      background: var(--accent-grad);
+      color: white !important;
+      box-shadow: 0 4px 12px rgba(255, 53, 2, 0.25);
+      padding: 8px 20px !important;
+    }
+    .nav-auth-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255, 53, 2, 0.35); }
 
     @media (max-width: 768px) {
-      .hero-title {
-        font-size: 2.1em;
-      }
-      .hero-subtitle {
-        font-size: 1em;
-      }
-      .section-title {
-        font-size: 1.8em;
-      }
-      .footer-bottom {
-        flex-direction: column;
-        text-align: center;
-      }
+      .nav-links { display: none; } 
     }
+
+    /* HERO */
+    .hero-section { text-align: center; padding: 4rem 1rem; animation: fadeUp 1s ease-out; }
+    .hero-logo { max-width: 280px; margin: 0 auto 2rem; animation: float 3s ease-in-out infinite; }
+    .hero-title { font-size: clamp(2.2rem, 5vw, 3.5rem); margin-bottom: 1rem; color: var(--deep); line-height: 1.1; }
+    .hero-title span { background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-subtitle { font-size: 1.1rem; color: var(--muted); max-width: 600px; margin: 0 auto 2rem; }
+    
+    .btn-primary { background: var(--accent-grad); color: white; padding: 12px 32px; border-radius: 50px; font-weight: 600; display: inline-block; box-shadow: 0 4px 15px rgba(255, 53, 2, 0.3); transition: 0.3s; }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255, 53, 2, 0.4); }
+
+    /* FOOTER */
+    .site-footer { background: var(--deep); color: white; padding: 3rem 1rem; margin-top: auto; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; text-align: center; }
+    .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .footer-links a { color: #ccc; }
+    .footer-links a:hover { color: var(--accent-gold); }
   </style>
 </head>
 
 <body>
   <div class="page-shell">
-    <!-- NAVBAR -->
+    
     <header class="top-nav">
       <div class="top-nav-inner">
         <a href="/" class="nav-brand">
-          <img
-            src="https://drive.google.com/thumbnail?id=1OmLTdwmyFj_mz0PBmojVBErKRl6hVI9F&sz=w300"
-            alt="Kalpnik3D Studio"
-            class="nav-logo-img"
-          />
+          <img src="/favicon.png" alt="Kalpnik3D" class="nav-logo-img">
           <div class="nav-brand-text">
-            <div class="nav-title">Kalpnik3D Studio</div>
-            <div class="nav-subtitle">Premium 3D Miniature Studio</div>
+            <div class="nav-title">Kalpnik3D</div>
+            <div class="nav-subtitle">Premium Miniatures</div>
           </div>
         </a>
 
-        <nav class="nav-links">
-          <a href="#home">Home</a>
-          <a href="/shop">Shop</a>
-          <a href="#bestsellers">Collections</a>
-          <a href="/contact">Contact</a>
-          <a href="/cart">Cart 🛒</a>
-          <a href="/login" class="nav-cta">Login / Track Order</a>
-        </nav>
+        <div style="display:flex; align-items:center;">
+          <nav class="nav-links">
+            <a href="/">Home</a>
+            <a href="/shop.html">Shop</a>
+            <a href="/cart.html">Cart</a>
+            <a href="/contact.html">Contact</a>
+          </nav>
+
+          <div style="display:flex; align-items:center;">
+            <span class="nav-user-pill" data-user-badge>Guest</span>
+            <button class="nav-auth-btn" style="border:none; border-radius:999px; margin-left:10px; cursor:pointer;" data-auth-action>
+              Login
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
     <main class="site-main">
-      <!-- HERO -->
-      <section id="home" class="hero-section">
-        <img
-          src="https://drive.google.com/thumbnail?id=1OmLTdwmyFj_mz0PBmojVBErKRl6hVI9F&sz=w1000"
-          alt="Kalpnik3D Studio Logo"
-          class="hero-logo"
-        />
-
-        <h1 class="hero-title">
-          India’s <span class="highlight">Premium 3D Miniature</span> Studio
-        </h1>
-        <p class="hero-subtitle">
-          Transform your memories into stunning handcrafted 3D miniatures — personalised, premium, and perfect for gifts,
-          décor, and special moments.
-        </p>
-
-        <div class="hero-actions">
-          <a href="/shop" class="btn-primary">Explore Collection</a>
-          <a href="https://wa.me/916309480371" target="_blank" class="btn-ghost">
-            Chat on WhatsApp for Custom Order
-          </a>
-        </div>
+      <section class="hero-section">
+        <img src="https://drive.google.com/thumbnail?id=1OmLTdwmyFj_mz0PBmojVBErKRl6hVI9F&sz=w1000" alt="Logo" class="hero-logo">
+        <h1 class="hero-title">India’s <span class="highlight">Premium 3D Miniature</span> Studio</h1>
+        <p class="hero-subtitle">Transform your memories into stunning handcrafted 3D miniatures — personalised, premium, and perfect for gifts.</p>
+        <a href="/shop.html" class="btn-primary">Explore Collection</a>
       </section>
 
-      <!-- WHY KALPNIK3D -->
-      <section class="features-section">
-        <h2 class="section-title">Why Choose Kalpnik3D?</h2>
-        <p class="section-subtitle">
-          We combine digital precision with artisan craftsmanship to create one-of-a-kind miniatures that actually look and
-          feel like “you”.
-        </p>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="feature-icon">🎨</div>
-            <h3 class="feature-title">Handcrafted Excellence</h3>
-            <p class="feature-desc">
-              Every miniature is meticulously crafted by skilled artisans with strong attention to detail in pose, costume,
-              and expression.
-            </p>
+      <section class="container" style="padding: 4rem 1rem; text-align:center;">
+        <h2 style="font-size:2rem; margin-bottom:2rem;">Why Choose Kalpnik3D?</h2>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:2rem;">
+          <div style="background:white; padding:2rem; border-radius:20px; box-shadow:var(--shadow-soft);">
+            <div style="font-size:2.5rem;">🎨</div>
+            <h3>Handcrafted Details</h3>
+            <p style="color:var(--muted);">Meticulously painted by skilled artisans for a lifelike finish.</p>
           </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">✨</div>
-            <h3 class="feature-title">Premium Quality</h3>
-            <p class="feature-desc">
-              We use high-quality materials and finishes so your miniatures stay vibrant, durable, and display-ready for years.
-            </p>
+          <div style="background:white; padding:2rem; border-radius:20px; box-shadow:var(--shadow-soft);">
+            <div style="font-size:2.5rem;">✨</div>
+            <h3>Premium Quality</h3>
+            <p style="color:var(--muted);">High-grade materials ensuring your memories last forever.</p>
           </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">💝</div>
-            <h3 class="feature-title">Fully Customisable</h3>
-            <p class="feature-desc">
-              Personalise everything — outfits, poses, accessories, base design, and even themes like wedding, office, or
-              hobbies.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- BESTSELLERS -->
-      <section id="bestsellers" class="bestseller-section">
-        <div class="container">
-          <h2 class="section-title">Bestselling Collections</h2>
-
-          <div class="product-showcase">
-            <div class="product-card">
-              <div class="product-img">👤</div>
-              <h3 class="product-name">Single Miniature</h3>
-              <p class="product-price">From ₹2,499</p>
-              <a href="/shop" class="btn-secondary">View in Shop</a>
-            </div>
-
-            <div class="product-card">
-              <div class="product-img">💑</div>
-              <h3 class="product-name">Couple Miniature</h3>
-              <p class="product-price">From ₹3,999</p>
-              <a href="/shop" class="btn-secondary">View in Shop</a>
-            </div>
-
-            <div class="product-card">
-              <div class="product-img">👨‍👩‍👧‍👦</div>
-              <h3 class="product-name">Family Miniature</h3>
-              <p class="product-price">From ₹5,999</p>
-              <a href="/shop" class="btn-secondary">View in Shop</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- QUICK ORDER / UPI -->
-      <section class="payment-section">
-        <div class="container">
-          <h2>Quick Order & UPI Payment</h2>
-          <p>
-            Already know what you want? You can confirm your order over WhatsApp and pay instantly via UPI.
-            Share your reference photos, preferred pose, and we’ll guide you through every step.
-          </p>
-
-          <div class="upi-box">
-            <h3>Official UPI ID</h3>
-            <div class="upi-id">nikhilmali9910@okicici</div>
-            <small>Use this UPI ID for secure advance payment and order confirmation.</small>
-
-            <a
-              href="https://wa.me/916309480371?text=Hi%20Kalpnik3D%20Studio%2C%20I%20want%20to%20book%20a%203D%20miniature."
-              class="whatsapp-btn"
-              target="_blank"
-            >
-              💬 Chat on WhatsApp &amp; Book
-            </a>
+          <div style="background:white; padding:2rem; border-radius:20px; box-shadow:var(--shadow-soft);">
+            <div style="font-size:2.5rem;">🚚</div>
+            <h3>Safe Delivery</h3>
+            <p style="color:var(--muted);">Secure packaging and tracked shipping across India.</p>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="footer-main">
-      <div class="footer-container">
-        <div class="footer-grid">
-          <!-- Brand -->
-          <div class="footer-column footer-logo-section">
-            <img
-              src="https://drive.google.com/thumbnail?id=1OmLTdwmyFj_mz0PBmojVBErKRl6hVI9F&sz=w600"
-              alt="Kalpnik3D Studio"
-              class="footer-logo"
-            />
-            <p class="footer-description">
-              India’s premium 3D miniature studio — transforming your precious memories into beautiful, handcrafted 3D
-              artworks.
-            </p>
-            <div class="footer-social">
-              <a href="#" class="social-icon" aria-label="Facebook">📘</a>
-              <a href="#" class="social-icon" aria-label="Instagram">📷</a>
-              <a
-                href="https://wa.me/916309480371"
-                class="social-icon"
-                aria-label="WhatsApp"
-                target="_blank"
-              >💬</a>
-              <a href="#" class="social-icon" aria-label="YouTube">📹</a>
-            </div>
-          </div>
-
-          <!-- Quick Links -->
-          <div class="footer-column">
-            <h3>Quick Links</h3>
-            <ul class="footer-links">
-              <li><a href="#home">🏠 Home</a></li>
-              <li><a href="/shop">🛍️ Shop</a></li>
-              <li><a href="#bestsellers">⭐ Collections</a></li>
-              <li><a href="/contact">📞 Contact</a></li>
-              <li><a href="/login">🧾 Order Status</a></li>
-            </ul>
-          </div>
-
-          <!-- Products -->
-          <div class="footer-column">
-            <h3>Products</h3>
-            <ul class="footer-links">
-              <li><a href="/shop">👤 Single Miniature</a></li>
-              <li><a href="/shop">💑 Couple Miniature</a></li>
-              <li><a href="/shop">👨‍👩‍👧‍👦 Family Miniature</a></li>
-              <li><a href="/shop">🚗 Car Dashboard Idol</a></li>
-              <li><a href="/shop">🗿 Marble / Temple Idol</a></li>
-              <li><a href="/shop">✨ Fully Custom Orders</a></li>
-            </ul>
-          </div>
-
-          <!-- Contact -->
-          <div class="footer-column">
-            <h3>Contact</h3>
-
-            <div class="footer-contact-item">
-              <span class="footer-contact-icon">📍</span>
-              <span>Bhadravati, Maharashtra, India</span>
-            </div>
-
-            <div class="footer-contact-item">
-              <span class="footer-contact-icon">📱</span>
-              <a href="tel:+916309480371">+91 63094 80371</a>
-            </div>
-
-            <div class="footer-contact-item">
-              <span class="footer-contact-icon">📧</span>
-              <a href="mailto:support@kalpnik3d.com">support@kalpnik3d.com</a>
-            </div>
-
-            <div class="footer-contact-item">
-              <span class="footer-contact-icon">💳</span>
-              <span>UPI: <strong>nikhilmali9910@okicici</strong></span>
-            </div>
-          </div>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-links">
+          <a href="/shop.html">Shop Collection</a>
+          <a href="/login.html">Track Order</a>
+          <a href="/contact.html">Contact Us</a>
+          <a href="/admin.html">Admin</a>
         </div>
-
-        <div class="footer-divider"></div>
-
-        <div class="footer-bottom">
-          <div>© 2025 Kalpnik3D Studio • Handcrafted with ❤️ in India</div>
-          <div class="footer-payment">
-            <span class="payment-icon">UPI</span>
-            <span class="payment-icon">Debit / Credit</span>
-            <span class="payment-icon">NetBanking</span>
-          </div>
+        <div style="opacity:0.6; font-size:0.9rem;">
+          © 2025 Kalpnik3D Studio. All rights reserved.
         </div>
       </div>
     </footer>
+
   </div>
 
-  <!-- Optional: hook your existing JS (won’t break even if not used yet) -->
-  <script src="/js/firebase.js" defer></script>
-  <script src="/js/userState.js" defer></script>
-</body>
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/userState.js"></script> </body>
 </html>
