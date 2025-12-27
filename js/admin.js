@@ -1,375 +1,187 @@
-// public/js/admin.js
-import { auth, db } from "./firebase.js";
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  serverTimestamp
+import { auth, db, onAuthStateChanged } from "./firebase.js";
+import { 
+  collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
-// 🔐 Admin emails – REPLACE with your email(s)
-const ADMIN_EMAILS = [
-  "vinayjawai82@gmail.com",  // <- put your login email here
-  // "anotheradmin@example.com"
-];
+const ADMIN_EMAIL = "vinayjawai82@gmail.com"; // Your email
 
-const gateEl = document.querySelector("[data-admin-gate]");
-const gateMsgEl = document.querySelector("[data-admin-message]");
-const contentEl = document.querySelector("[data-admin-content]");
+// UI Elements
+const gate = document.getElementById("adminGate");
+const content = document.getElementById("adminContent");
+const productForm = document.getElementById("productForm");
+const productsList = document.getElementById("adminProductsList");
+const ordersList = document.getElementById("ordersList");
+const toast = document.getElementById("toast");
+const cancelEditBtn = document.getElementById("cancelEditBtn");
 
-// Settings form
-const settingsForm = document.querySelector("[data-settings-form]");
-const settingsStatus = document.querySelector("[data-settings-status]");
-
-// Product form
-const productForm = document.querySelector("[data-product-form]");
-const productFormTitle = document.querySelector("[data-product-form-title]");
-const productFormStatus = document.querySelector("[data-product-form-status]");
-const cancelEditBtn = document.querySelector("[data-product-cancel-edit]");
-
-// Product list
-const productsListEl = document.querySelector("[data-admin-products-list]");
-const productsEmptyEl = document.querySelector("[data-admin-products-empty]");
-const refreshProductsBtn = document.querySelector("[data-refresh-products]");
-
-let currentProducts = [];
-let editingProductId = null;
-
-function showGate(message) {
-  if (gateEl) gateEl.style.display = "flex";
-  if (contentEl) contentEl.style.display = "none";
-  if (gateMsgEl && message) gateMsgEl.textContent = message;
-}
-
-function showAdmin() {
-  if (gateEl) gateEl.style.display = "none";
-  if (contentEl) contentEl.style.display = "block";
-}
-
-onAuthStateChanged(auth, async user => {
-  if (!user) {
-    showGate("You must be logged in to access the admin panel… redirecting.");
-    setTimeout(() => (window.location.href = "login.html"), 1400);
-    return;
-  }
-
-  const email = user.email || "";
-  const isAdmin = ADMIN_EMAILS.includes(email);
-
-  if (!isAdmin) {
-    showGate("This account is not authorised for admin access.");
-    return;
-  }
-
-  showAdmin();
-  initAdmin();
-});
-
-// ---------- Settings ----------
-
-async function loadSettings() {
-  if (!settingsForm) return;
-  try {
-    const ref = doc(db, "settings", "shop");
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const data = snap.data();
-      settingsForm.title.value = data.title || "";
-      settingsForm.subtitle.value = data.subtitle || "";
-      settingsForm.bannerText.value = data.bannerText || "";
-    }
-  } catch (err) {
-    console.error("Failed to load settings:", err);
-    if (settingsStatus) {
-      settingsStatus.textContent =
-        "Failed to load settings. Check console for details.";
-      settingsStatus.className = "checkout-status active error";
-    }
-  }
-}
-
-settingsForm?.addEventListener("submit", async e => {
-  e.preventDefault();
-  try {
-    const payload = {
-      title: settingsForm.title.value.trim(),
-      subtitle: settingsForm.subtitle.value.trim(),
-      bannerText: settingsForm.bannerText.value.trim(),
-      updatedAt: serverTimestamp()
-    };
-
-    const ref = doc(db, "settings", "shop");
-    if (settingsStatus) {
-      settingsStatus.textContent = "Saving settings…";
-      settingsStatus.className = "checkout-status active";
-    }
-    await setDoc(ref, payload, { merge: true });
-
-    if (settingsStatus) {
-      settingsStatus.textContent = "Settings updated.";
-      settingsStatus.className = "checkout-status active success";
-    }
-  } catch (err) {
-    console.error("Failed to save settings:", err);
-    if (settingsStatus) {
-      settingsStatus.textContent = "Failed to save settings.";
-      settingsStatus.className = "checkout-status active error";
-    }
+// 1. Auth Check
+onAuthStateChanged(auth, user => {
+  if (user && user.email === ADMIN_EMAIL) {
+    gate.style.display = "none";
+    content.style.display = "block";
+    loadProducts();
+    loadOrders();
+  } else {
+    gate.innerHTML = "<h3>Access Denied</h3><p>You are not authorized.</p><a href='/login.html' class='btn btn-primary'>Go to Login</a>";
   }
 });
 
-// ---------- Products ----------
-
-function resetProductForm() {
-  if (!productForm) return;
-  editingProductId = null;
-  productForm.reset();
-
-  // default active = true
-  const activeInput = productForm.querySelector("input[name='active']");
-  if (activeInput) activeInput.checked = true;
-
-  if (productFormTitle) productFormTitle.textContent = "Add new product";
-  if (productFormStatus) {
-    productFormStatus.textContent = "";
-    productFormStatus.className = "checkout-status";
-  }
-}
-
-function formatINR(value) {
-  return `₹${Number(value || 0).toLocaleString("en-IN")}`;
-}
-
-async function loadAdminProducts() {
-  if (!productsListEl || !productsEmptyEl) return;
-  productsListEl.innerHTML = "";
-  productsEmptyEl.style.display = "none";
-
-  try {
-    const snap = await getDocs(collection(db, "products"));
-    currentProducts = [];
-    snap.forEach(docSnap => {
-      currentProducts.push({ id: docSnap.id, ...docSnap.data() });
-    });
-
-    if (!currentProducts.length) {
-      productsEmptyEl.style.display = "flex";
-      return;
-    }
-
-    renderProductsAdmin(currentProducts);
-  } catch (err) {
-    console.error("Failed to load products:", err);
-    productsEmptyEl.style.display = "flex";
-    productsEmptyEl.innerHTML = `
-      <h3>Error loading products</h3>
-      <p>Please check Firestore rules and console logs.</p>
-    `;
-  }
-}
-
-function renderProductsAdmin(list) {
-  if (!productsListEl) return;
-  productsListEl.innerHTML = "";
-
-  list.forEach((p, index) => {
-    const row = document.createElement("div");
-    row.className = "admin-product-row fade-in-up";
-    row.style.animationDelay = `${index * 40}ms`;
-
-    const price = p.price ?? 0;
-    const active = p.active !== false; // default true
-
-    row.innerHTML = `
-      <div class="admin-product-main">
-        <div>
-          <h4>${p.name || "Untitled product"}</h4>
-          <p>
-            ${p.category ? `<span class="admin-pill">${p.category}</span>` : ""}
-            ${
-              p.tagline
-                ? `<span class="admin-pill accent">${p.tagline}</span>`
-                : ""
-            }
-          </p>
+// 2. Load Products
+async function loadProducts() {
+  productsList.innerHTML = "<p>Loading...</p>";
+  const q = query(collection(db, "products"), orderBy("name")); // Sort by name
+  const snap = await getDocs(q);
+  
+  let html = "";
+  snap.forEach(docSnap => {
+    const p = docSnap.data();
+    html += `
+      <div class="list-row">
+        <div class="list-info">
+          <img src="${p.imageUrl || '/favicon.png'}" class="list-thumb">
+          <div>
+            <div style="font-weight:600;">${p.name}</div>
+            <div style="font-size:0.85rem; color:grey;">₹${p.price} • ${p.category}</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-outline" onclick="window.editProduct('${docSnap.id}', '${p.name}', '${p.price}', '${p.category}', '${p.imageUrl}', ${p.active})">Edit</button>
+          <button class="btn btn-danger" onclick="window.deleteProduct('${docSnap.id}')">Delete</button>
         </div>
       </div>
-
-      <div class="admin-product-meta">
-        <span class="admin-price">${formatINR(price)}</span>
-        <label class="toggle-switch">
-          <input type="checkbox" data-toggle-active ${
-            active ? "checked" : ""
-          } />
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-
-      <div class="admin-product-actions">
-        <button class="btn outline" type="button" data-edit>Edit</button>
-        <button class="btn outline danger" type="button" data-delete>
-          Delete
-        </button>
-      </div>
     `;
-
-    const toggle = row.querySelector("[data-toggle-active]");
-    const editBtn = row.querySelector("[data-edit]");
-    const deleteBtn = row.querySelector("[data-delete]");
-
-    toggle?.addEventListener("change", async e => {
-      const checked = e.target.checked;
-      try {
-        await updateDoc(doc(db, "products", p.id), { active: checked });
-      } catch (err) {
-        console.error("Failed to update active:", err);
-        e.target.checked = !checked;
-        alert("Failed to update active state.");
-      }
-    });
-
-    editBtn?.addEventListener("click", () => startEditProduct(p));
-    deleteBtn?.addEventListener("click", () => confirmDeleteProduct(p));
-
-    productsListEl.appendChild(row);
   });
+  productsList.innerHTML = html || "<p>No products yet.</p>";
 }
 
-function startEditProduct(p) {
-  if (!productForm) return;
-  editingProductId = p.id;
-
-  if (productFormTitle) productFormTitle.textContent = "Edit product";
-
-  productForm.name.value = p.name || "";
-  productForm.price.value = p.price ?? "";
-  productForm.imageUrl.value = p.imageUrl || "";
-  productForm.category.value = p.category || "";
-  productForm.tagline.value = p.tagline || "";
-
-  const activeInput = productForm.querySelector("input[name='active']");
-  if (activeInput) activeInput.checked = p.active !== false;
-
-  if (productFormStatus) {
-    productFormStatus.textContent = "Editing existing product.";
-    productFormStatus.className = "checkout-status active";
-  }
-}
-
-async function confirmDeleteProduct(p) {
-  const ok = confirm(`Delete product "${p.name || "Unnamed"}"?`);
-  if (!ok) return;
-  try {
-    await deleteDoc(doc(db, "products", p.id));
-    await loadAdminProducts();
-  } catch (err) {
-    console.error("Failed to delete product:", err);
-    alert("Failed to delete product. Check console.");
-  }
-}
-
-productForm?.addEventListener("submit", async e => {
+// 3. Save / Update Product
+productForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!productForm) return;
-
-  const name = productForm.name.value.trim();
-  const price = Number(productForm.price.value || 0);
-  const imageUrl = productForm.imageUrl.value.trim();
-  const category = productForm.category.value.trim();
-  const tagline = productForm.tagline.value.trim();
-  const activeInput = productForm.querySelector("input[name='active']");
-  const active = activeInput ? activeInput.checked : true;
-
-  if (!name) {
-    if (productFormStatus) {
-      productFormStatus.textContent = "Name is required.";
-      productFormStatus.className = "checkout-status active error";
-    }
-    return;
-  }
-
+  const id = productForm.docId.value;
+  
   const payload = {
-    name,
-    price,
-    imageUrl,
-    category,
-    tagline,
-    active,
+    name: productForm.name.value,
+    price: Number(productForm.price.value),
+    category: productForm.category.value,
+    imageUrl: productForm.imageUrl.value,
+    active: productForm.active.checked,
     updatedAt: serverTimestamp()
   };
 
   try {
-    if (productFormStatus) {
-      productFormStatus.textContent = editingProductId
-        ? "Updating product…"
-        : "Creating product…";
-      productFormStatus.className = "checkout-status active";
-    }
-
-    if (editingProductId) {
-      await updateDoc(doc(db, "products", editingProductId), payload);
+    if (id) {
+      await updateDoc(doc(db, "products", id), payload);
+      showToast("Product Updated!");
     } else {
-      await addDoc(collection(db, "products"), {
-        ...payload,
-        createdAt: serverTimestamp()
-      });
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db, "products"), payload);
+      showToast("Product Created!");
     }
-
-    if (productFormStatus) {
-      productFormStatus.textContent = editingProductId
-        ? "Product updated."
-        : "Product created.";
-      productFormStatus.className = "checkout-status active success";
-    }
-
-    resetProductForm();
-    await loadAdminProducts();
+    resetForm();
+    loadProducts();
   } catch (err) {
-    console.error("Product save failed:", err);
-    if (productFormStatus) {
-      productFormStatus.textContent = "Failed to save product.";
-      productFormStatus.className = "checkout-status active error";
-    }
+    console.error(err);
+    alert("Error saving product: " + err.message);
   }
 });
 
-cancelEditBtn?.addEventListener("click", () => {
-  resetProductForm();
-});
+// 4. Edit Logic (Exposed to Window)
+window.editProduct = (id, name, price, category, img, active) => {
+  productForm.docId.value = id;
+  productForm.name.value = name;
+  productForm.price.value = price;
+  productForm.category.value = category;
+  productForm.imageUrl.value = (img === 'undefined') ? '' : img;
+  productForm.active.checked = active; // active is boolean
+  
+  document.getElementById("formTitle").textContent = "Edit Product";
+  cancelEditBtn.style.display = "inline-block";
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
-refreshProductsBtn?.addEventListener("click", () => {
-  loadAdminProducts();
-});
+// 5. Delete Logic
+window.deleteProduct = async (id) => {
+  if(!confirm("Are you sure? This cannot be undone.")) return;
+  await deleteDoc(doc(db, "products", id));
+  showToast("Product Deleted");
+  loadProducts();
+};
 
-// ---------- Init ----------
-
-function initAdmin() {
-  resetProductForm();
-  loadSettings();
-  loadAdminProducts();
+// 6. Reset Form
+function resetForm() {
+  productForm.reset();
+  productForm.docId.value = "";
+  document.getElementById("formTitle").textContent = "Add New Product";
+  cancelEditBtn.style.display = "none";
 }
+cancelEditBtn.addEventListener("click", resetForm);
 
-const shopName = document.getElementById("shopName").value.trim();
-const shopTagline =
-  document.getElementById("shopTagline").value.trim();
-const heroImageUrl =
-  document.getElementById("heroImageUrl").value.trim();
+// 7. Load Orders
+window.loadOrders = async () => {
+  ordersList.innerHTML = "<p>Loading orders...</p>";
+  try {
+    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    
+    if (snap.empty) {
+      ordersList.innerHTML = "<p>No orders received yet.</p>";
+      return;
+    }
 
-const isLive = document.getElementById("shopIsLive").checked;
-const maintenanceTitle =
-  document.getElementById("maintenanceTitle").value.trim();
-const maintenanceMessage =
-  document.getElementById("maintenanceMessage").value.trim();
+    let html = "";
+    snap.forEach(docSnap => {
+      const o = docSnap.data();
+      const date = o.createdAt ? o.createdAt.toDate().toLocaleDateString() : "Unknown Date";
+      
+      // Build item list
+      let itemsHtml = o.items.map(i => `<li>${i.quantity}x ${i.name}</li>`).join("");
 
-const logoUrl =
-  document.getElementById("shopLogoUrl").value.trim();
-const faviconUrl =
-  document.getElementById("shopFaviconUrl").value.trim();
+      html += `
+        <div class="order-card">
+          <div class="order-header">
+            <span>Order #${docSnap.id.slice(0,6)}</span>
+            <span>${date}</span>
+          </div>
+          <div style="margin-bottom:0.5rem;">
+            <strong>Customer:</strong> ${o.fullName} (${o.phone})<br>
+            <span style="color:grey; font-size:0.9rem;">${o.email}</span>
+          </div>
+          <div style="background:#f9fafb; padding:0.5rem; border-radius:8px; font-size:0.9rem; margin-bottom:0.5rem;">
+            <ul style="margin:0; padding-left:1.2rem;">${itemsHtml}</ul>
+            <div style="text-align:right; font-weight:bold; margin-top:0.5rem;">Total: ₹${o.total}</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="status-badge ${o.status === 'shipped' ? 'shipped' : ''}">${o.status || 'Pending'}</span>
+            ${o.status !== 'shipped' ? 
+              `<button class="btn btn-primary" style="font-size:0.75rem; padding:4px 12px;" onclick="window.markShipped('${docSnap.id}')">Mark Shipped</button>` 
+              : ''}
+          </div>
+        </div>
+      `;
+    });
+    ordersList.innerHTML = html;
+  } catch (err) {
+    console.error(err);
+    ordersList.innerHTML = "<p style='color:red'>Error loading orders. Check permissions.</p>";
+  }
+};
+
+window.markShipped = async (id) => {
+  if(!confirm("Mark this order as completed/shipped?")) return;
+  await updateDoc(doc(db, "orders", id), { status: "shipped" });
+  showToast("Order Updated");
+  loadOrders();
+};
+
+// 8. Logout
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  signOut(auth).then(() => window.location.href = "/login.html");
+});
+
+// Toast Helper
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.style.opacity = "1";
+  setTimeout(() => toast.style.opacity = "0", 3000);
+}
