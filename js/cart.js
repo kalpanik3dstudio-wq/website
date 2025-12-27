@@ -10,13 +10,15 @@ function loadCart() {
 
 function saveCart(cart) {
   localStorage.setItem("kalpnik_cart", JSON.stringify(cart));
+  window.updateNavBadge(); // Force update immediately
 }
 
 const cartList = document.querySelector("[data-cart-list]");
 const cartEmpty = document.querySelector("[data-cart-empty]");
+const cartSummaryShell = document.getElementById("cartSummaryShell");
 const cartTotal = document.querySelector("[data-cart-total]");
-const cartCount = document.querySelectorAll("[data-cart-count]");
 const checkoutBtn = document.querySelector("[data-checkout-btn]");
+const clearBtn = document.getElementById("clearCartBtn");
 
 function formatINR(value) {
   return `₹${Number(value || 0).toLocaleString("en-IN")}`;
@@ -24,13 +26,14 @@ function formatINR(value) {
 
 function updateSummary(cart) {
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-  if (cartTotal) cartTotal.textContent = formatINR(total);
-  cartCount.forEach(el => (el.textContent = count));
-  if (checkoutBtn) checkoutBtn.disabled = cart.length === 0;
   
-  // Also update the global Nav badge
-  if(window.updateNavBadge) window.updateNavBadge();
+  if (cartTotal) cartTotal.textContent = formatINR(total);
+  
+  // Toggle visibility of summary and clear button
+  const isEmpty = cart.length === 0;
+  if (cartSummaryShell) cartSummaryShell.style.display = isEmpty ? "none" : "block";
+  if (clearBtn) clearBtn.style.display = isEmpty ? "none" : "block";
+  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
 }
 
 function renderCart() {
@@ -38,74 +41,68 @@ function renderCart() {
   if (!cartList) return;
 
   cartList.innerHTML = "";
+  
   if (!cart.length) {
-    cartEmpty.style.display = "flex";
     updateSummary(cart);
     return;
   }
-  cartEmpty.style.display = "none";
 
   cart.forEach((item, index) => {
     const row = document.createElement("div");
     row.className = "cart-row fade-in-up";
-    row.style.animationDelay = `${index * 70}ms`;
+    row.style.animationDelay = `${index * 50}ms`;
 
-    // FIX: Uses 'imageUrl' matching the new products.js
-    const imgSrc = item.imageUrl || item.image || "https://placehold.co/80x80?text=No+Img";
-
+    // Modern layout
     row.innerHTML = `
       <div class="cart-item-main">
-        <img src="${imgSrc}" alt="${item.name}">
+        <img src="${item.imageUrl || item.image || 'img/logo.png'}" alt="${item.name}" 
+             style="width:70px; height:70px; object-fit:cover; border-radius:10px; background:#f0f0f0;">
         <div>
-          <h4>${item.name}</h4>
-          <p class="cart-price">${formatINR(item.price)}</p>
+          <h4 style="margin:0 0 4px 0;">${item.name}</h4>
+          <p class="cart-price" style="margin:0; color:#ff3502;">${formatINR(item.price)}</p>
         </div>
       </div>
+      
       <div class="cart-item-actions">
         <div class="qty-control">
           <button type="button" data-qty-minus>-</button>
-          <input type="number" value="${item.quantity}" min="1">
+          <input type="number" value="${item.quantity}" min="1" readonly>
           <button type="button" data-qty-plus>+</button>
         </div>
-        <p class="cart-line">${formatINR(item.price * item.quantity)}</p>
-        <button class="icon-btn" type="button" data-remove>&times;</button>
+        
+        <div style="text-align:right;">
+           <p style="margin:0; font-weight:600;">${formatINR(item.price * item.quantity)}</p>
+           <button class="icon-btn" type="button" data-remove style="color:grey; font-size:0.8rem; text-decoration:underline; border:none; background:none; cursor:pointer; padding:0;">Remove</button>
+        </div>
       </div>
     `;
 
+    // Event Listeners
     const minusBtn = row.querySelector("[data-qty-minus]");
     const plusBtn = row.querySelector("[data-qty-plus]");
-    const qtyInput = row.querySelector("input[type='number']");
     const removeBtn = row.querySelector("[data-remove]");
 
     minusBtn.addEventListener("click", () => {
-      let cart = loadCart();
-      if (cart[index].quantity > 1) {
-        cart[index].quantity -= 1;
+      let currentCart = loadCart();
+      if (currentCart[index].quantity > 1) {
+        currentCart[index].quantity -= 1;
+        saveCart(currentCart);
+        renderCart();
       }
-      saveCart(cart);
-      renderCart();
     });
 
     plusBtn.addEventListener("click", () => {
-      let cart = loadCart();
-      cart[index].quantity += 1;
-      saveCart(cart);
-      renderCart();
-    });
-
-    qtyInput.addEventListener("change", () => {
-      let cart = loadCart();
-      let value = parseInt(qtyInput.value || "1", 10);
-      if (Number.isNaN(value) || value < 1) value = 1;
-      cart[index].quantity = value;
-      saveCart(cart);
+      let currentCart = loadCart();
+      currentCart[index].quantity += 1;
+      saveCart(currentCart);
       renderCart();
     });
 
     removeBtn.addEventListener("click", () => {
-      let cart = loadCart();
-      cart.splice(index, 1);
-      saveCart(cart);
+      if(!confirm("Remove this item?")) return;
+      let currentCart = loadCart();
+      currentCart.splice(index, 1);
+      saveCart(currentCart);
       renderCart();
     });
 
@@ -115,27 +112,41 @@ function renderCart() {
   updateSummary(cart);
 }
 
+// Clear Cart Logic
+clearBtn?.addEventListener("click", () => {
+  if(confirm("Are you sure you want to empty your cart?")) {
+    localStorage.removeItem("kalpnik_cart");
+    renderCart();
+    window.updateNavBadge();
+  }
+});
+
 checkoutBtn?.addEventListener("click", () => {
   window.location.href = "checkout.html";
 });
 
-// Add to global scope so products.js can call it
+// Global Badge Logic
 window.updateNavBadge = function() {
   const cart = loadCart();
   const count = cart.reduce((sum, item) => sum + item.quantity, 0);
   
   const navLinks = document.querySelectorAll('.nav-links a');
   navLinks.forEach(link => {
-    if (link.textContent.includes("Cart")) {
-      if (count > 0) {
-        link.innerHTML = `Cart <span style="background:#ff3502; color:white; padding:2px 6px; border-radius:10px; font-size:0.75rem; margin-left:5px;">${count}</span>`;
-      } else {
-        link.textContent = "Cart";
+    if (link.href.includes("cart.html")) {
+      const badge = link.querySelector("span");
+      if (badge) {
+        if(count > 0) {
+          badge.textContent = count;
+          badge.style.display = "inline-block";
+        } else {
+          badge.style.display = "none";
+        }
       }
     }
   });
 };
 
+// Init
 document.addEventListener("DOMContentLoaded", () => {
   renderCart();
   window.updateNavBadge();

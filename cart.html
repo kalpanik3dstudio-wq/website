@@ -12,42 +12,54 @@
     <header class="top-nav">
       <div class="top-nav-inner">
         <a href="/" class="nav-brand">
-          <img src="/favicon.png" class="nav-logo-img">
+          <img src="img/logo.png" class="nav-logo-img">
           <div class="nav-title">Kalpnik3D</div>
         </a>
         <nav class="nav-links">
           <a href="/shop.html">Shop</a>
-          <a href="/cart.html" class="is-active">Cart</a>
+          <a href="/cart.html" class="is-active">Cart <span id="cartCountBadge" style="display:none; background:red; color:white; padding:2px 6px; border-radius:10px; font-size:0.7rem;">0</span></a>
         </nav>
       </div>
     </header>
 
     <main class="site-main">
       <div class="container" style="max-width:800px; padding-top:2rem;">
-        <div class="page-header">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
           <h1>Your Cart</h1>
+          <button id="clearCartBtn" class="btn btn-outline btn-danger" style="font-size:0.8rem; padding:6px 12px; display:none;">Clear Cart</button>
         </div>
 
         <div id="cartList" data-cart-list>
           </div>
 
-        <div id="cartEmpty" class="card-shell" style="text-align:center; display:none;" data-cart-empty>
+        <div id="cartEmpty" class="card-shell" style="text-align:center; display:none; padding:4rem 2rem;" data-cart-empty>
+          <div style="font-size:3rem; margin-bottom:1rem;">🛒</div>
           <h3>Your cart is empty</h3>
-          <p>Browse our collection to add memories.</p>
+          <p style="color:grey;">Looks like you haven't added any miniatures yet.</p>
           <br>
-          <a href="/shop.html" class="btn btn-primary">Go to Shop</a>
+          <a href="/shop.html" class="btn btn-primary">Browse Collection</a>
         </div>
 
-        <div class="card-shell" style="margin-top:2rem;">
+        <div id="cartSummaryShell" class="card-shell" style="margin-top:2rem;">
           <div style="display:flex; justify-content:space-between; align-items:center; font-size:1.2rem; font-weight:700;">
-            <span>Total:</span>
+            <span>Subtotal:</span>
             <span data-cart-total>₹0</span>
           </div>
-          <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem;">Shipping calculated at checkout.</p>
+          <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem;">Shipping & taxes calculated at checkout.</p>
           <button data-checkout-btn class="btn btn-primary w-100">Proceed to Checkout</button>
+          <div style="text-align:center; margin-top:1rem;">
+             <a href="/shop.html" style="font-size:0.9rem; color:grey; text-decoration:underline;">Continue Shopping</a>
+          </div>
         </div>
       </div>
     </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <span>© 2025 Kalpnik3D Studio. All rights reserved.</span>
+      </div>
+    </footer>
   </div>
   <script type="module" src="js/cart.js"></script>
 </body>

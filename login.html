@@ -12,7 +12,7 @@
     <header class="top-nav">
       <div class="top-nav-inner">
         <a href="/" class="nav-brand">
-          <img src="/favicon.png" class="nav-logo-img">
+          <img src="img/logo.png" class="nav-logo-img">
           <div class="nav-title">Kalpnik3D</div>
         </a>
         <nav class="nav-links">
@@ -23,17 +23,18 @@
     </header>
 
     <main class="site-main">
-      <div class="container" style="max-width: 800px; padding-top: 2rem;">
+      <div class="container" style="max-width: 900px; padding-top: 2rem;">
         
-        <div id="authLoading" style="text-align: center; padding: 2rem;">
-          <p>Loading account details...</p>
+        <div id="authLoading" style="text-align: center; padding: 4rem;">
+          <p>Loading account...</p>
         </div>
 
         <div id="authForms" class="card-shell" style="max-width: 400px; margin: 0 auto; display: none;">
-          <h2 style="text-align:center; margin-bottom:0.5rem;">Welcome</h2>
-          <div style="display:flex; gap:10px; margin-bottom:1.5rem;">
-            <button id="tabLogin" class="btn btn-primary w-100" onclick="switchAuth('login')">Login</button>
-            <button id="tabRegister" class="btn btn-outline w-100" onclick="switchAuth('register')">Sign Up</button>
+          <h2 style="text-align:center; margin-bottom:1rem;">Welcome Back</h2>
+          
+          <div style="display:flex; gap:10px; margin-bottom:1.5rem; background:#f5f5f5; padding:4px; border-radius:12px;">
+            <button id="tabLogin" class="btn w-100" style="background:white; shadow:var(--shadow-soft);" onclick="switchAuth('login')">Login</button>
+            <button id="tabRegister" class="btn w-100" style="background:transparent;" onclick="switchAuth('register')">Sign Up</button>
           </div>
 
           <form id="loginForm">
@@ -59,36 +60,74 @@
             </div>
             <button type="submit" class="btn btn-primary w-100">Create Account</button>
           </form>
-          <p id="authMsg" style="text-align:center; margin-top:1rem; color:var(--accent-orange); font-size:0.9rem;"></p>
+          <p id="authMsg" style="text-align:center; margin-top:1rem; color:var(--accent-orange); font-size:0.9rem; min-height:1.2em;"></p>
         </div>
 
         <div id="userDashboard" style="display: none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
             <div>
               <h1>My Account</h1>
-              <p style="color:var(--muted);" id="userEmailDisplay">user@example.com</p>
+              <p style="color:var(--muted);" id="userEmailDisplay">...</p>
             </div>
-            <button id="logoutBtn" class="btn btn-outline">Logout</button>
+            <button id="logoutBtn" class="btn btn-outline btn-danger">Sign Out</button>
           </div>
 
-          <div class="card-shell">
-            <h3>My Orders</h3>
-            <div id="myOrdersList">
-              <p>Loading your orders...</p>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:2rem;">
+            
+            <div class="card-shell" style="height:fit-content;">
+              <h3>📍 Shipping Details</h3>
+              <p style="font-size:0.85rem; color:grey; margin-bottom:1.5rem;">Save your address for faster checkout.</p>
+              
+              <form id="profileForm">
+                <div class="input-group">
+                  <label>Full Name</label>
+                  <input type="text" id="profName" placeholder="Your name">
+                </div>
+                <div class="input-group">
+                  <label>Phone Number</label>
+                  <input type="tel" id="profPhone" placeholder="+91...">
+                </div>
+                <div class="input-group">
+                  <label>Full Address</label>
+                  <textarea id="profAddress" rows="3" placeholder="House no, Street, City, Pincode"></textarea>
+                </div>
+                <button type="submit" class="btn btn-outline w-100">Save Changes</button>
+                <p id="profileMsg" style="text-align:center; font-size:0.8rem; margin-top:0.5rem; color:green;"></p>
+              </form>
             </div>
+
+            <div class="card-shell">
+              <h3>📦 My Orders</h3>
+              <div id="myOrdersList" style="margin-top:1.5rem;">
+                <p>Loading history...</p>
+              </div>
+            </div>
+
           </div>
         </div>
 
       </div>
     </main>
+    
+    <div id="toast" style="position:fixed; bottom:20px; right:20px; background:#2c3836; color:white; padding:12px 24px; border-radius:50px; opacity:0; pointer-events:none; transition:0.3s;">Saved</div>
   </div>
 
   <script>
     function switchAuth(mode) {
       document.getElementById('loginForm').style.display = mode === 'login' ? 'block' : 'none';
       document.getElementById('registerForm').style.display = mode === 'register' ? 'block' : 'none';
-      document.getElementById('tabLogin').className = mode === 'login' ? 'btn btn-primary w-100' : 'btn btn-outline w-100';
-      document.getElementById('tabRegister').className = mode === 'register' ? 'btn btn-primary w-100' : 'btn btn-outline w-100';
+      
+      const btnLogin = document.getElementById('tabLogin');
+      const btnReg = document.getElementById('tabRegister');
+      
+      if(mode === 'login') {
+        btnLogin.style.background = 'white'; btnLogin.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+        btnReg.style.background = 'transparent'; btnReg.style.boxShadow = 'none';
+      } else {
+        btnReg.style.background = 'white'; btnReg.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+        btnLogin.style.background = 'transparent'; btnLogin.style.boxShadow = 'none';
+      }
     }
   </script>
   <script type="module" src="js/firebase.js"></script>
