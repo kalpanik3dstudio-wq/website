@@ -107,6 +107,19 @@ img { max-width: 100%; display: block; }
 .btn-primary { background: var(--accent-grad); color: white; width: 100%; }
 .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
 
+/* --- CART FIXES --- */
+.cart-row img {
+  width: 80px; 
+  height: 80px; 
+  object-fit: cover; 
+  border-radius: 8px;
+}
+.cart-item-main {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 /* Footer */
 .site-footer { background: var(--deep); color: white; padding: 3rem 0; margin-top: auto; text-align: center; }
 .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; }

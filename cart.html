@@ -12,7 +12,8 @@
     <header class="top-nav">
       <div class="top-nav-inner">
         <a href="/" class="nav-brand">
-          <img src="img/logo.png" class="nav-logo-img"> <div class="nav-title">Kalpnik3D</div>
+          <img src="img/logo.png" class="nav-logo-img">
+          <div class="nav-title">Kalpnik3D</div>
         </a>
         <nav class="nav-links">
           <a href="/shop.html">Shop</a>
@@ -22,103 +23,37 @@
     </header>
 
     <main class="container" style="padding-top:2rem;">
-      <h1>Your Cart</h1>
-      
-      <div id="cartList" class="cart-list"></div>
+      <div class="page-header">
+        <h1>Your Cart</h1>
+      </div>
 
-      <div id="cartEmpty" style="text-align:center; padding:4rem; display:none;">
+      <div id="cartList" class="cart-list" style="max-width:800px; margin:0 auto;"></div>
+
+      <div id="cartEmpty" class="card-shell" style="text-align:center; display:none;">
         <h3>Your cart is empty</h3>
-        <p style="color:var(--muted);">Time to add some memories.</p>
-        <br>
+        <p style="color:var(--muted); margin:1rem 0;">Browse our collection to find something special.</p>
         <a href="/shop.html" class="btn btn-primary">Go to Shop</a>
       </div>
 
-      <div id="cartFooter" class="form-card" style="margin-top:2rem; text-align:right; display:none;">
-        <div style="font-size:1.5rem; font-weight:700; margin-bottom:1rem;">
-          Subtotal: <span id="cartTotalDisplay">₹0</span>
+      <div id="cartFooter" class="card-shell" style="max-width:800px; margin:2rem auto; display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:1.3rem; font-weight:700; margin-bottom:1rem;">
+          <span>Subtotal:</span>
+          <span id="cartTotalDisplay">₹0</span>
         </div>
-        <p style="color:var(--muted); font-size:0.9rem; margin-bottom:1.5rem;">Shipping & taxes calculated at checkout</p>
-        <button id="checkoutBtn" class="btn btn-primary">Proceed to Checkout</button>
+        <p style="color:var(--muted); font-size:0.9rem; margin-bottom:1.5rem;">Shipping & taxes calculated at checkout.</p>
+        <button id="checkoutBtn" class="btn btn-primary w-100">Proceed to Checkout</button>
       </div>
     </main>
 
     <footer class="site-footer">
-      <span>© 2025 Kalpnik3D Studio. All rights reserved.</span>
+      <div class="container" style="text-align:center; font-size:0.9rem;">
+        © 2025 Kalpnik3D Studio. All rights reserved.
+      </div>
     </footer>
   </div>
 
   <script type="module" src="js/firebase.js"></script>
   <script type="module" src="js/userState.js"></script>
-  <script>
-    const cartList = document.getElementById('cartList');
-    const cartEmpty = document.getElementById('cartEmpty');
-    const cartFooter = document.getElementById('cartFooter');
-    const totalDisplay = document.getElementById('cartTotalDisplay');
-
-    function loadCart() { return JSON.parse(localStorage.getItem("kalpnik_cart")) || []; }
-    function saveCart(c) { localStorage.setItem("kalpnik_cart", JSON.stringify(c)); window.updateNavBadge(); }
-    function formatINR(n) { return "₹" + Number(n).toLocaleString("en-IN"); }
-
-    function render() {
-      const cart = loadCart();
-      if(cart.length === 0) {
-        cartList.style.display = 'none';
-        cartFooter.style.display = 'none';
-        cartEmpty.style.display = 'block';
-        return;
-      }
-
-      cartList.style.display = 'flex';
-      cartEmpty.style.display = 'none';
-      cartFooter.style.display = 'block';
-      cartList.innerHTML = '';
-
-      let total = 0;
-      cart.forEach((item, idx) => {
-        total += item.price * item.quantity;
-        const div = document.createElement('div');
-        div.className = 'cart-row';
-        div.innerHTML = `
-          <img src="${item.imageUrl || item.image || 'img/logo.png'}" class="cart-thumb">
-          <div class="cart-info">
-            <h4>${item.name}</h4>
-            <div class="cart-price">${formatINR(item.price)}</div>
-          </div>
-          <div class="cart-actions">
-            <div class="cart-total-price">${formatINR(item.price * item.quantity)}</div>
-            <div class="qty-group">
-              <button class="qty-btn" onclick="updateQty(${idx}, -1)">-</button>
-              <input class="qty-input" type="number" value="${item.quantity}" readonly>
-              <button class="qty-btn" onclick="updateQty(${idx}, 1)">+</button>
-            </div>
-            <button class="remove-link" onclick="removeItem(${idx})">Remove</button>
-          </div>
-        `;
-        cartList.appendChild(div);
-      });
-      totalDisplay.textContent = formatINR(total);
-    }
-
-    window.updateQty = (idx, change) => {
-      let c = loadCart();
-      if(c[idx].quantity + change > 0) {
-        c[idx].quantity += change;
-        saveCart(c);
-        render();
-      }
-    };
-
-    window.removeItem = (idx) => {
-      if(!confirm("Remove item?")) return;
-      let c = loadCart();
-      c.splice(idx, 1);
-      saveCart(c);
-      render();
-    };
-
-    document.getElementById('checkoutBtn').addEventListener('click', () => window.location.href = 'checkout.html');
-    
-    render();
-  </script>
+  <script type="module" src="js/cart.js"></script>
 </body>
 </html>

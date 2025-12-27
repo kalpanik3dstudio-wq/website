@@ -1,153 +1,94 @@
 // public/js/cart.js
 
 function loadCart() {
-  try {
-    return JSON.parse(localStorage.getItem("kalpnik_cart")) || [];
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem("kalpnik_cart")) || []; } 
+  catch { return []; }
 }
-
 function saveCart(cart) {
   localStorage.setItem("kalpnik_cart", JSON.stringify(cart));
-  window.updateNavBadge(); // Force update immediately
+  if(window.updateNavBadge) window.updateNavBadge();
+}
+function formatINR(val) {
+  return "₹" + Number(val || 0).toLocaleString("en-IN");
 }
 
-const cartList = document.querySelector("[data-cart-list]");
-const cartEmpty = document.querySelector("[data-cart-empty]");
-const cartSummaryShell = document.getElementById("cartSummaryShell");
-const cartTotal = document.querySelector("[data-cart-total]");
-const checkoutBtn = document.querySelector("[data-checkout-btn]");
-const clearBtn = document.getElementById("clearCartBtn");
-
-function formatINR(value) {
-  return `₹${Number(value || 0).toLocaleString("en-IN")}`;
-}
-
-function updateSummary(cart) {
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  
-  if (cartTotal) cartTotal.textContent = formatINR(total);
-  
-  // Toggle visibility of summary and clear button
-  const isEmpty = cart.length === 0;
-  if (cartSummaryShell) cartSummaryShell.style.display = isEmpty ? "none" : "block";
-  if (clearBtn) clearBtn.style.display = isEmpty ? "none" : "block";
-  if (cartEmpty) cartEmpty.style.display = isEmpty ? "block" : "none";
-}
+const cartList = document.getElementById("cartList");
+const cartEmpty = document.getElementById("cartEmpty");
+const cartFooter = document.getElementById("cartFooter");
+const totalDisplay = document.getElementById("cartTotalDisplay");
+const checkoutBtn = document.getElementById("checkoutBtn");
 
 function renderCart() {
   const cart = loadCart();
-  if (!cartList) return;
-
-  cartList.innerHTML = "";
   
-  if (!cart.length) {
-    updateSummary(cart);
+  if (cart.length === 0) {
+    if(cartList) cartList.style.display = "none";
+    if(cartFooter) cartFooter.style.display = "none";
+    if(cartEmpty) cartEmpty.style.display = "block";
     return;
   }
 
-  cart.forEach((item, index) => {
-    const row = document.createElement("div");
-    row.className = "cart-row fade-in-up";
-    row.style.animationDelay = `${index * 50}ms`;
+  if(cartEmpty) cartEmpty.style.display = "none";
+  if(cartList) cartList.style.display = "flex";
+  if(cartFooter) cartFooter.style.display = "block";
+  cartList.innerHTML = "";
 
-    // Modern layout
+  let total = 0;
+
+  cart.forEach((item, index) => {
+    // FIX: Safety check for bad data
+    const price = Number(item.price) || 0;
+    const qty = Number(item.quantity) || 1;
+    const lineTotal = price * qty;
+    total += lineTotal;
+
+    const row = document.createElement("div");
+    row.className = "list-row"; // Re-using list-row style
     row.innerHTML = `
-      <div class="cart-item-main">
-        <img src="${item.imageUrl || item.image || 'img/logo.png'}" alt="${item.name}" 
-             style="width:70px; height:70px; object-fit:cover; border-radius:10px; background:#f0f0f0;">
+      <div class="list-info">
+        <img src="${item.imageUrl || 'img/logo.png'}" class="list-thumb">
         <div>
-          <h4 style="margin:0 0 4px 0;">${item.name}</h4>
-          <p class="cart-price" style="margin:0; color:#ff3502;">${formatINR(item.price)}</p>
+          <h4 style="margin:0 0 4px 0;">${item.name || 'Product'}</h4>
+          <div style="color:var(--accent-orange); font-weight:600;">${formatINR(price)}</div>
         </div>
       </div>
       
-      <div class="cart-item-actions">
-        <div class="qty-control">
-          <button type="button" data-qty-minus>-</button>
-          <input type="number" value="${item.quantity}" min="1" readonly>
-          <button type="button" data-qty-plus>+</button>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+        <div style="display:flex; align-items:center; border:1px solid #ddd; border-radius:8px;">
+          <button class="btn-qty" onclick="changeQty(${index}, -1)" style="padding:4px 8px; background:none; border:none; cursor:pointer;">-</button>
+          <span style="padding:0 8px; font-weight:600;">${qty}</span>
+          <button class="btn-qty" onclick="changeQty(${index}, 1)" style="padding:4px 8px; background:none; border:none; cursor:pointer;">+</button>
         </div>
-        
-        <div style="text-align:right;">
-           <p style="margin:0; font-weight:600;">${formatINR(item.price * item.quantity)}</p>
-           <button class="icon-btn" type="button" data-remove style="color:grey; font-size:0.8rem; text-decoration:underline; border:none; background:none; cursor:pointer; padding:0;">Remove</button>
-        </div>
+        <button onclick="removeItem(${index})" style="font-size:0.8rem; color:red; background:none; border:none; cursor:pointer; text-decoration:underline;">Remove</button>
       </div>
     `;
-
-    // Event Listeners
-    const minusBtn = row.querySelector("[data-qty-minus]");
-    const plusBtn = row.querySelector("[data-qty-plus]");
-    const removeBtn = row.querySelector("[data-remove]");
-
-    minusBtn.addEventListener("click", () => {
-      let currentCart = loadCart();
-      if (currentCart[index].quantity > 1) {
-        currentCart[index].quantity -= 1;
-        saveCart(currentCart);
-        renderCart();
-      }
-    });
-
-    plusBtn.addEventListener("click", () => {
-      let currentCart = loadCart();
-      currentCart[index].quantity += 1;
-      saveCart(currentCart);
-      renderCart();
-    });
-
-    removeBtn.addEventListener("click", () => {
-      if(!confirm("Remove this item?")) return;
-      let currentCart = loadCart();
-      currentCart.splice(index, 1);
-      saveCart(currentCart);
-      renderCart();
-    });
-
     cartList.appendChild(row);
   });
 
-  updateSummary(cart);
+  if(totalDisplay) totalDisplay.textContent = formatINR(total);
 }
 
-// Clear Cart Logic
-clearBtn?.addEventListener("click", () => {
-  if(confirm("Are you sure you want to empty your cart?")) {
-    localStorage.removeItem("kalpnik_cart");
+// Window functions for HTML onclick
+window.changeQty = (idx, change) => {
+  let cart = loadCart();
+  if (cart[idx].quantity + change >= 1) {
+    cart[idx].quantity += change;
+    saveCart(cart);
     renderCart();
-    window.updateNavBadge();
   }
-});
-
-checkoutBtn?.addEventListener("click", () => {
-  window.location.href = "checkout.html";
-});
-
-// Global Badge Logic
-window.updateNavBadge = function() {
-  const cart = loadCart();
-  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-  
-  const navLinks = document.querySelectorAll('.nav-links a');
-  navLinks.forEach(link => {
-    if (link.href.includes("cart.html")) {
-      const badge = link.querySelector("span");
-      if (badge) {
-        if(count > 0) {
-          badge.textContent = count;
-          badge.style.display = "inline-block";
-        } else {
-          badge.style.display = "none";
-        }
-      }
-    }
-  });
 };
 
-// Init
-document.addEventListener("DOMContentLoaded", () => {
+window.removeItem = (idx) => {
+  if(!confirm("Remove item?")) return;
+  let cart = loadCart();
+  cart.splice(idx, 1);
+  saveCart(cart);
   renderCart();
-  window.updateNavBadge();
-});
+};
+
+if(checkoutBtn) {
+  checkoutBtn.addEventListener("click", () => window.location.href = "checkout.html");
+}
+
+// Init
+document.addEventListener("DOMContentLoaded", renderCart);
