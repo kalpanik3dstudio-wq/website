@@ -51,7 +51,9 @@
               <h3 id="formTitle" style="margin-top:0;">Add New Product</h3>
               
               <form id="productForm">
-                <input type="hidden" name="docId"> <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1rem;">
+                <input type="hidden" name="docId"> 
+                
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1rem;">
                   <div class="input-group">
                     <label>Product Name</label>
                     <input type="text" name="name" required placeholder="Ex: Family Miniature">
@@ -59,20 +61,6 @@
                   <div class="input-group">
                     <label>Price (₹)</label>
                     <input type="number" name="price" required placeholder="2499">
-                  </div>
-                </div>
-
-                <div class="input-group">
-                  <label>Product Image</label>
-                  <div style="display:flex; gap:10px; align-items:center;">
-                    <input type="file" id="imageInput" accept="image/*" style="border:1px solid #ccc; padding:8px; border-radius:8px; width:100%;">
-                    <input type="hidden" name="imageUrl" id="imageUrl">
-                  </div>
-                  
-                  <div id="uploadProgress" style="height:4px; width:0%; background:#ff3502; transition:width 0.3s; margin-top:8px; border-radius:2px;"></div>
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                    <small id="uploadStatus" style="color:grey;">No file chosen</small>
-                    <img id="imagePreview" src="" style="display:none; width:50px; height:50px; object-fit:cover; border-radius:6px; border:1px solid #ddd;">
                   </div>
                 </div>
 
@@ -87,6 +75,12 @@
                 </div>
 
                 <div class="input-group">
+                  <label>Image Source</label>
+                  <input type="text" name="imageUrl" placeholder="img/my-photo.jpg OR https://...">
+                  <small style="color:grey; font-size:0.8rem;">Upload file to 'public/img' folder and type path here (e.g. img/car.jpg)</small>
+                </div>
+
+                <div class="input-group">
                   <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
                     <input type="checkbox" name="active" checked style="width:auto; margin:0;">
                     Active (Visible in shop)
@@ -98,7 +92,7 @@
                   <button type="button" id="cancelEditBtn" class="btn btn-outline" style="display:none;">Cancel Edit</button>
                 </div>
               </form>
-              </div>
+            </div>
 
             <h3>Existing Products</h3>
             <div id="adminProductsList"></div>
