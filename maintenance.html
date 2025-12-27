@@ -9,58 +9,35 @@
   </head>
   <body>
     <div class="page-shell">
-      <header class="site-nav">
-        <div class="nav-inner">
+      <header class="top-nav">
+        <div class="top-nav-inner">
           <a href="/" class="nav-brand">
-            <div class="nav-logo"></div>
+            <img src="img/logo.png" class="nav-logo-img" alt="Kalpnik3D">
             <div>
               <div class="nav-title">KALPNIK3D</div>
-              <small class="nav-subtitle">Storefront temporarily offline</small>
+              <small class="nav-subtitle">Offline</small>
             </div>
           </a>
-
-          <nav class="nav-links" aria-label="Main navigation">
-            <a href="/">Home</a>
-            <a href="/shop" class="is-active">Shop</a>
-            <a href="/contact">Contact</a>
-          </nav>
-
-          <div class="nav-user" id="navUserBadge">
-            Guest · Not signed in
-          </div>
         </div>
       </header>
 
       <main class="site-main">
-        <section class="container">
-          <div class="contact-shell" style="text-align: center; max-width: 540px;">
+        <section class="container" style="display:flex; justify-content:center; padding-top:4rem;">
+          <div class="card-shell" style="text-align: center; max-width: 500px;">
             <h1>We’re polishing the 3D printers</h1>
-            <p class="admin-subtitle" id="maintenanceMessageText">
-              The Kalpnik3D shop is currently under maintenance. We’re updating products and
-              improving the experience.
-            </p>
-            <p class="product-category">
-              You can still reach us for custom orders and enquiries using the contact button below.
+            <p style="color:var(--muted); margin: 1.5rem 0;">
+              The Kalpnik3D shop is currently under maintenance. We’re updating products and improving the experience.
             </p>
             <div style="margin-top: 1.25rem;">
-              <a href="/contact" class="btn primary">Contact Kalpnik3D</a>
+              <a href="/contact.html" class="btn btn-primary">Contact Us</a>
             </div>
           </div>
         </section>
       </main>
 
       <footer class="site-footer">
-        <div class="container footer-inner">
-          <span>© <span id="year"></span> KALPNIK3D. All rights reserved.</span>
-        </div>
+        <span>© 2025 KALPNIK3D. All rights reserved.</span>
       </footer>
     </div>
-
-    <script>
-      const yearEl = document.getElementById("year");
-      if (yearEl) yearEl.textContent = new Date().getFullYear();
-    </script>
-    <script type="module" src="js/siteSettings.js"></script>
-    <script type="module" src="js/userState.js"></script>
   </body>
 </html>
