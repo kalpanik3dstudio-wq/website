@@ -12,7 +12,7 @@
     rel="stylesheet"
   />
 
-  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="icon" type="image/png" href="img/logo.png" />
 
   <style>
     :root {
@@ -52,7 +52,7 @@
     .site-main { flex: 1; }
     .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-    /* --- UPDATED NAVIGATION --- */
+    /* --- NAVIGATION --- */
     .top-nav {
       position: sticky;
       top: 0;
@@ -78,7 +78,8 @@
 
     .nav-links { display: flex; align-items: center; gap: 0.5rem; }
     .nav-links a { padding: 8px 16px; border-radius: var(--radius-pill); font-size: 0.9rem; color: var(--muted); font-weight: 500; transition: 0.2s; }
-    .nav-links a:hover { background: rgba(0,0,0,0.04); color: var(--deep); }
+    .nav-links a:hover, .nav-links a.active { background: rgba(0,0,0,0.04); color: var(--deep); }
+    .nav-links a.active { font-weight: 700; color: var(--accent-orange); }
     
     /* User Badge Styling */
     .nav-user-pill {
@@ -136,7 +137,7 @@
     <header class="top-nav">
       <div class="top-nav-inner">
         <a href="/" class="nav-brand">
-          <img src="/favicon.png" alt="Kalpnik3D" class="nav-logo-img">
+          <img src="img/logo.png" alt="Kalpnik3D" class="nav-logo-img">
           <div class="nav-brand-text">
             <div class="nav-title">Kalpnik3D</div>
             <div class="nav-subtitle">Premium Miniatures</div>
@@ -148,7 +149,7 @@
             <a href="/">Home</a>
             <a href="/shop.html">Shop</a>
             <a href="/cart.html">Cart</a>
-            <a href="/contact.html">Contact</a>
+            <a href="/account.html" style="color:var(--accent-orange); font-weight:600;">My Account</a>
           </nav>
 
           <div style="display:flex; align-items:center;">
@@ -163,7 +164,7 @@
 
     <main class="site-main">
       <section class="hero-section">
-        <img src="https://drive.google.com/thumbnail?id=1OmLTdwmyFj_mz0PBmojVBErKRl6hVI9F&sz=w1000" alt="Logo" class="hero-logo">
+        <img src="img/logo.png" alt="Logo" class="hero-logo">
         <h1 class="hero-title">India’s <span class="highlight">Premium 3D Miniature</span> Studio</h1>
         <p class="hero-subtitle">Transform your memories into stunning handcrafted 3D miniatures — personalised, premium, and perfect for gifts.</p>
         <a href="/shop.html" class="btn-primary">Explore Collection</a>
@@ -195,7 +196,7 @@
       <div class="footer-inner">
         <div class="footer-links">
           <a href="/shop.html">Shop Collection</a>
-          <a href="/login.html">Track Order</a>
+          <a href="/account.html">Track Order</a>
           <a href="/contact.html">Contact Us</a>
           <a href="/admin.html">Admin</a>
         </div>
@@ -208,5 +209,6 @@
   </div>
 
   <script type="module" src="js/firebase.js"></script>
-  <script type="module" src="js/userState.js"></script> </body>
+  <script type="module" src="js/userState.js"></script>
+</body>
 </html>

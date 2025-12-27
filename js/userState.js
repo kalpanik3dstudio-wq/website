@@ -10,7 +10,8 @@ function setLoggedOut() {
   if (userBadge) { userBadge.textContent = "Guest"; userBadge.classList.remove("logged-in"); }
   if (authActionBtn) {
     authActionBtn.textContent = "Login";
-    authActionBtn.onclick = () => (window.location.href = "login.html");
+    // FIX: Redirect to new account page for login
+    authActionBtn.onclick = () => (window.location.href = "account.html");
   }
 }
 
@@ -30,7 +31,7 @@ onAuthStateChanged(auth, user => {
   else setLoggedOut();
 });
 
-// 2. GLOBAL CART BADGE LOGIC (Added this!)
+// 2. GLOBAL CART BADGE LOGIC
 window.updateNavBadge = function() {
   try {
     const raw = localStorage.getItem("kalpnik_cart");

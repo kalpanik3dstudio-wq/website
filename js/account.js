@@ -1,6 +1,6 @@
 import { auth, db, onAuthStateChanged } from "./firebase.js";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import { doc, getDoc, setDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // DOM Elements
 const loader = document.getElementById("loader");
@@ -11,29 +11,32 @@ const authMsg = document.getElementById("authMsg");
 
 // 1. AUTH STATE LISTENER
 onAuthStateChanged(auth, async (user) => {
-  loader.style.display = "none";
+  if(loader) loader.style.display = "none";
   
   if (user) {
-    guestView.style.display = "none";
-    userView.style.display = "block";
-    welcomeText.textContent = `Hello, ${user.email}`;
+    if(guestView) guestView.style.display = "none";
+    if(userView) userView.style.display = "block";
+    if(welcomeText) welcomeText.textContent = `Hello, ${user.email}`;
     
     // Load Data
     loadProfile(user);
     loadOrders(user);
   } else {
-    guestView.style.display = "block";
-    userView.style.display = "none";
+    if(guestView) guestView.style.display = "block";
+    if(userView) userView.style.display = "none";
   }
 });
 
-// 2. LOAD ORDERS (With Status Tracking)
+// 2. LOAD ORDERS (Fixed: Client-side sorting)
 async function loadOrders(user) {
   const list = document.getElementById("ordersList");
+  if(!list) return;
+  
   list.innerHTML = "<p>Scanning for orders...</p>";
 
   try {
-    const q = query(collection(db, "orders"), where("email", "==", user.email), orderBy("createdAt", "desc"));
+    // FIX: Removed 'orderBy' from here to prevent Index Error
+    const q = query(collection(db, "orders"), where("email", "==", user.email));
     const snap = await getDocs(q);
 
     if (snap.empty) {
@@ -47,10 +50,22 @@ async function loadOrders(user) {
       return;
     }
 
+    // Convert to array and sort manually by Date (Newest first)
+    let orders = [];
+    snap.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+    
+    orders.sort((a, b) => {
+      const dateA = a.createdAt ? a.createdAt.seconds : 0;
+      const dateB = b.createdAt ? b.createdAt.seconds : 0;
+      return dateB - dateA; // Descending order
+    });
+
     let html = "";
-    snap.forEach(docSnap => {
-      const o = docSnap.data();
-      const date = o.createdAt ? o.createdAt.toDate().toDateString() : "Recent";
+    orders.forEach(o => {
+      // Date Formatting
+      const dateObj = o.createdAt ? new Date(o.createdAt.seconds * 1000) : new Date();
+      const dateStr = dateObj.toDateString();
+      
       const isShipped = o.status === "shipped";
       
       // Status Visual Logic
@@ -71,12 +86,12 @@ async function loadOrders(user) {
       html += `
         <div class="card-shell" style="margin-bottom:1rem;">
           <div style="display:flex; justify-content:space-between; font-weight:600; margin-bottom:0.5rem;">
-            <span>Order #${docSnap.id.slice(0, 6).toUpperCase()}</span>
-            <span>${date}</span>
+            <span>Order #${o.id.slice(0, 6).toUpperCase()}</span>
+            <span>${dateStr}</span>
           </div>
           
           <div style="background:#f9f9f9; padding:10px; border-radius:8px; font-size:0.9rem; margin-bottom:1rem;">
-            ${o.items.map(i => `<div>${i.quantity}x ${i.name}</div>`).join('')}
+            ${(o.items || []).map(i => `<div>${i.quantity}x ${i.name}</div>`).join('')}
             <div style="text-align:right; font-weight:bold; margin-top:5px;">Total: ₹${o.total}</div>
           </div>
 
@@ -91,7 +106,7 @@ async function loadOrders(user) {
 
   } catch (err) {
     console.error(err);
-    list.innerHTML = "<p>Error loading orders.</p>";
+    list.innerHTML = `<p style='color:red'>Error: ${err.message}</p>`;
   }
 }
 
@@ -101,48 +116,60 @@ async function loadProfile(user) {
     const snap = await getDoc(doc(db, "users", user.uid));
     if(snap.exists()) {
       const d = snap.data();
-      document.getElementById("profName").value = d.fullName || "";
-      document.getElementById("profPhone").value = d.phone || "";
-      document.getElementById("profAddress").value = d.address || "";
+      if(document.getElementById("profName")) document.getElementById("profName").value = d.fullName || "";
+      if(document.getElementById("profPhone")) document.getElementById("profPhone").value = d.phone || "";
+      if(document.getElementById("profAddress")) document.getElementById("profAddress").value = d.address || "";
     }
   } catch(e) { console.log("New user profile"); }
 }
 
-document.getElementById("profileForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const user = auth.currentUser;
-  const msg = document.getElementById("profMsg");
-  msg.textContent = "Saving...";
-  
-  try {
-    await setDoc(doc(db, "users", user.uid), {
-      fullName: document.getElementById("profName").value,
-      phone: document.getElementById("profPhone").value,
-      address: document.getElementById("profAddress").value,
-      email: user.email
-    }, { merge: true });
-    msg.textContent = "✅ Saved Successfully!";
-    msg.style.color = "green";
-  } catch(err) {
-    msg.textContent = "Error saving.";
-  }
-});
+const profForm = document.getElementById("profileForm");
+if(profForm) {
+  profForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+    const msg = document.getElementById("profMsg");
+    msg.textContent = "Saving...";
+    
+    try {
+      await setDoc(doc(db, "users", user.uid), {
+        fullName: document.getElementById("profName").value,
+        phone: document.getElementById("profPhone").value,
+        address: document.getElementById("profAddress").value,
+        email: user.email
+      }, { merge: true });
+      msg.textContent = "✅ Saved Successfully!";
+      msg.style.color = "green";
+    } catch(err) {
+      msg.textContent = "Error saving.";
+    }
+  });
+}
 
 // 4. LOGIN / REGISTER ACTIONS
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  authMsg.textContent = "Signing in...";
-  try {
-    await signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value, document.getElementById("loginPass").value);
-  } catch(err) { authMsg.textContent = "Error: " + err.message; }
-});
+const loginForm = document.getElementById("loginForm");
+if(loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if(authMsg) authMsg.textContent = "Signing in...";
+    try {
+      await signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value, document.getElementById("loginPass").value);
+    } catch(err) { if(authMsg) authMsg.textContent = "Error: " + err.message; }
+  });
+}
 
-document.getElementById("regForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  authMsg.textContent = "Creating account...";
-  try {
-    await createUserWithEmailAndPassword(auth, document.getElementById("regEmail").value, document.getElementById("regPass").value);
-  } catch(err) { authMsg.textContent = "Error: " + err.message; }
-});
+const regForm = document.getElementById("regForm");
+if(regForm) {
+  regForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if(authMsg) authMsg.textContent = "Creating account...";
+    try {
+      await createUserWithEmailAndPassword(auth, document.getElementById("regEmail").value, document.getElementById("regPass").value);
+    } catch(err) { if(authMsg) authMsg.textContent = "Error: " + err.message; }
+  });
+}
 
-document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+const logoutBtn = document.getElementById("logoutBtn");
+if(logoutBtn) {
+  logoutBtn.addEventListener("click", () => signOut(auth));
+}
