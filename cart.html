@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cart | Kalpnik3D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="top-nav">
+      <div class="top-nav-inner">
+        <a href="/" class="nav-brand">
+          <img src="/favicon.png" class="nav-logo-img">
+          <div class="nav-title">Kalpnik3D</div>
+        </a>
+        <nav class="nav-links">
+          <a href="/shop.html">Shop</a>
+          <a href="/cart.html" class="is-active">Cart</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <div class="container" style="max-width:800px; padding-top:2rem;">
+        <div class="page-header">
+          <h1>Your Cart</h1>
+        </div>
+
+        <div id="cartList" data-cart-list>
+          </div>
+
+        <div id="cartEmpty" class="card-shell" style="text-align:center; display:none;" data-cart-empty>
+          <h3>Your cart is empty</h3>
+          <p>Browse our collection to add memories.</p>
+          <br>
+          <a href="/shop.html" class="btn btn-primary">Go to Shop</a>
+        </div>
+
+        <div class="card-shell" style="margin-top:2rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:1.2rem; font-weight:700;">
+            <span>Total:</span>
+            <span data-cart-total>₹0</span>
+          </div>
+          <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.5rem;">Shipping calculated at checkout.</p>
+          <button data-checkout-btn class="btn btn-primary w-100">Proceed to Checkout</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="js/cart.js"></script>
+</body>
+</html>

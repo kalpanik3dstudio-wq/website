@@ -1,0 +1,9 @@
+
+reCAPTCHA to your site
+Use this site key in the HTML code your site serves to users.
+
+6LcaKhosAAAAAEuwOz-c0shb0_UkX_bxBW-yjAUb 
+
+Use this secret key for communication between your site and reCAPTCHA.
+
+6LcaKhosAAAAAANNiyeqVDnuSvYFmG5UlDUmiiJU

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin | Kalpnik3D</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    
+    <header class="top-nav">
+      <div class="top-nav-inner">
+        <a href="/" class="nav-brand">
+          <img src="/favicon.png" alt="Kalpnik3D" class="nav-logo-img">
+          <div class="nav-title">Admin Dashboard</div>
+        </a>
+        <nav class="nav-links">
+          <a href="/shop.html">View Shop</a>
+          <button class="btn btn-primary" id="logoutBtn" style="padding:6px 16px; font-size:0.8rem;">Logout</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <div class="container" style="max-width: 900px; padding-top: 2rem;">
+        
+        <div id="adminGate" class="card-shell" style="text-align:center;">
+          <h2>Checking Access...</h2>
+          <p>Verifying admin privileges.</p>
+        </div>
+
+        <div id="adminContent" style="display:none;">
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h2>Product Management</h2>
+            <button class="btn btn-outline" id="refreshBtn">Refresh List</button>
+          </div>
+
+          <div class="card-shell">
+            <h3 id="formTitle" style="margin-top:0;">Add New Product</h3>
+            <form id="productForm">
+              <div class="input-group">
+                <label>Product Name</label>
+                <input type="text" name="name" required placeholder="e.g. Lord Ganesha Idol">
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                <div class="input-group">
+                  <label>Price (₹)</label>
+                  <input type="number" name="price" required placeholder="2499">
+                </div>
+                <div class="input-group">
+                  <label>Category</label>
+                  <select name="category">
+                    <option value="idol">Idol</option>
+                    <option value="miniature">Miniature</option>
+                    <option value="gift">Gift</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                </div>
+              </div>
+              <div class="input-group">
+                <label>Image URL</label>
+                <input type="url" name="imageUrl" placeholder="https://...">
+              </div>
+              <div class="input-group">
+                <label>Short Description</label>
+                <textarea name="tagline" rows="2" placeholder="Brief subtitle..."></textarea>
+              </div>
+              <div class="input-group">
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                  <input type="checkbox" name="active" style="width:auto; margin:0;">
+                  Product is Active (Visible in shop)
+                </label>
+              </div>
+              
+              <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+                <button type="submit" class="btn btn-primary w-100">Save Product</button>
+                <button type="button" id="cancelBtn" class="btn btn-outline">Cancel</button>
+              </div>
+              <p id="formStatus" style="margin-top:10px; font-size:0.9rem;"></p>
+            </form>
+          </div>
+
+          <div id="adminProductsList">
+            </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>KALPNIK3D — Contact & Enquiries</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-nav">
+        <div class="nav-inner">
+          <a href="/" class="nav-brand">
+            <div class="nav-logo"></div>
+            <div>
+              <div class="nav-title">KALPNIK3D</div>
+              <small class="nav-subtitle">Contact &amp; custom enquiries</small>
+            </div>
+          </a>
+
+          <nav class="nav-links" aria-label="Main navigation">
+            <a href="/">Home</a>
+            <a href="/shop">Shop</a>
+            <a href="/cart">Cart</a>
+            <a href="/contact" class="is-active">Contact</a>
+          </nav>
+
+          <div class="nav-user" id="navUserBadge">
+            Guest · Not signed in
+          </div>
+        </div>
+      </header>
+
+      <main class="site-main">
+        <section class="container">
+          <div class="contact-shell">
+            <div class="admin-header">
+              <div>
+                <h1>Talk to Kalpnik3D</h1>
+                <p class="admin-subtitle">
+                  Use this form for quotations, bulk orders, or fully custom idols / miniatures.
+                </p>
+              </div>
+            </div>
+
+            <form id="contactForm" class="checkout-grid">
+              <div>
+                <label for="contactName">Name</label>
+                <input id="contactName" name="contactName" type="text" required />
+              </div>
+              <div>
+                <label for="contactEmail">Email</label>
+                <input id="contactEmail" name="contactEmail" type="email" required />
+              </div>
+              <div>
+                <label for="contactPhone">Phone (optional)</label>
+                <input id="contactPhone" name="contactPhone" type="tel" />
+              </div>
+              <div>
+                <label for="contactMessage">What are you looking for?</label>
+                <textarea
+                  id="contactMessage"
+                  name="contactMessage"
+                  required
+                  placeholder="Briefly describe your idea, quantity, timeline, etc."
+                ></textarea>
+              </div>
+
+              <button type="submit" class="btn primary w-100">
+                Send message
+              </button>
+            </form>
+
+            <p id="contactStatus" class="checkout-status"></p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-inner">
+          <span>© <span id="year"></span> KALPNIK3D. All rights reserved.</span>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      const yearEl = document.getElementById("year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+    </script>
+    <script type="module" src="js/contact.js"></script>
+    <script type="module" src="js/userState.js"></script>
+  </body>
+</html>

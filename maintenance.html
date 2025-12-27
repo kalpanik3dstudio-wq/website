@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>KALPNIK3D — Under Maintenance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-nav">
+        <div class="nav-inner">
+          <a href="/" class="nav-brand">
+            <div class="nav-logo"></div>
+            <div>
+              <div class="nav-title">KALPNIK3D</div>
+              <small class="nav-subtitle">Storefront temporarily offline</small>
+            </div>
+          </a>
+
+          <nav class="nav-links" aria-label="Main navigation">
+            <a href="/">Home</a>
+            <a href="/shop" class="is-active">Shop</a>
+            <a href="/contact">Contact</a>
+          </nav>
+
+          <div class="nav-user" id="navUserBadge">
+            Guest · Not signed in
+          </div>
+        </div>
+      </header>
+
+      <main class="site-main">
+        <section class="container">
+          <div class="contact-shell" style="text-align: center; max-width: 540px;">
+            <h1>We’re polishing the 3D printers</h1>
+            <p class="admin-subtitle" id="maintenanceMessageText">
+              The Kalpnik3D shop is currently under maintenance. We’re updating products and
+              improving the experience.
+            </p>
+            <p class="product-category">
+              You can still reach us for custom orders and enquiries using the contact button below.
+            </p>
+            <div style="margin-top: 1.25rem;">
+              <a href="/contact" class="btn primary">Contact Kalpnik3D</a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-inner">
+          <span>© <span id="year"></span> KALPNIK3D. All rights reserved.</span>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      const yearEl = document.getElementById("year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+    </script>
+    <script type="module" src="js/siteSettings.js"></script>
+    <script type="module" src="js/userState.js"></script>
+  </body>
+</html>
